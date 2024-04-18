@@ -1,0 +1,9 @@
+framework module SimplePingSwift {
+    umbrella header "SimplePingSwift.h"
+
+    explicit module Private {
+        header "SimplePing.h"
+    }
+
+    // The above `explicit module Private { header "SimplePing.h" }` also works if you `export like this { export * }`
+}

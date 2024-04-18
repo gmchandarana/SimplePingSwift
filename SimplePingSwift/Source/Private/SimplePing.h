@@ -6,8 +6,7 @@
     An object wrapper around the low-level BSD Sockets ping function.
  */
 
-@import Foundation;
-
+#import <Foundation/Foundation.h>
 #include <AssertMacros.h>           // for __Check_Compile_Time
 
 NS_ASSUME_NONNULL_BEGIN
