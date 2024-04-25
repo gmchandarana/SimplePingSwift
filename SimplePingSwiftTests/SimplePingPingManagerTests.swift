@@ -50,6 +50,30 @@ final class SimplePingPingManagerTests: XCTestCase {
         }, nil)
 
         wait(for: [expectation], timeout: 5)
+    }
 
+    func testPingManagerShouldStopAfterSendingSpecifiedNumberOfRequests() {
+        let pingCount = 5
+        let expectation = expectation(description: "The pingManager should stop after \(pingCount) requests.")
+        expectation.expectedFulfillmentCount = 6
+
+        var successCount = 0
+        let config = PingConfiguration(count: pingCount)
+
+        manager.ping(host: host, configuration: config, { response in
+            switch response {
+            case .success:
+                if successCount >= pingCount {
+                    XCTFail("PingManager should stop after \(pingCount) requests.")
+                } else {
+                    successCount += 1
+                    expectation.fulfill()
+                }
+            case .failure: 
+                XCTFail("Expected success, but received failure")
+            }
+        }, nil)
+
+        wait(for: [expectation], timeout: 5)
     }
 }
