@@ -9,7 +9,7 @@ import Foundation
 
 class SimplePingPingManager: PingManager {
 
-    func ping(host: String, configuration: PingConfiguration, responseHandler: (Result<Void, any Error>) -> (), resultHandler: (Result<Void, any Error>) -> ()) {
-
+    func ping(host: String, configuration: PingConfiguration, responseHandler: (Result<PingSuccess, any Error>) -> Void, resultHandler: (PingResult) -> Void) {
+        
     }
 }

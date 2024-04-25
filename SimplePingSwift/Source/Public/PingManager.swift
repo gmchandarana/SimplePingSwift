@@ -7,9 +7,8 @@
 
 import Foundation
 
-typealias PingResultHandler = ((Result<Void, Error>) -> ())
-typealias PingResponseHandler = ((Result<Void, Error>) -> ())
-typealias PingConfiguration = ()
+typealias PingResponseHandler = ((Result<PingSuccess, Error>) -> Void)
+typealias PingResultHandler = ((PingResult) -> Void)
 
 protocol PingManager {
 
