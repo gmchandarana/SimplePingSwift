@@ -9,6 +9,7 @@ import Foundation
 
 class SimplePingPingManager: PingManager {
 
+    private var pingCount = Int()
     private var requests = [UInt16: Date]()
     private var results = [UInt16: TimeInterval]()
     private var session: PingSession?
@@ -36,6 +37,11 @@ class SimplePingPingManager: PingManager {
             let elapsed = abs(start.timeIntervalSinceNow)
             results.updateValue(elapsed, forKey: packet)
             responseHandler?(.success(PingSuccess(host: host, time: elapsed)))
+
+            if results.count == pingCount {
+                 session?.stop()
+            }
+
         case .failed(let error, _): responseHandler?(.failure(error))
         default: break
         }
