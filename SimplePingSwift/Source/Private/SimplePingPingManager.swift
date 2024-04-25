@@ -17,6 +17,7 @@ class SimplePingPingManager: PingManager {
     func ping(host: String, configuration: PingConfiguration, _ responseHandler: PingResponseHandler? = nil, _ resultHandler: PingResultHandler? = nil) {
 
         self.responseHandler = responseHandler
+        self.pingCount = configuration.count
         let session = PingSession(host: host, pingInterval: configuration.interval)
 
         session.start { [weak self] response in
