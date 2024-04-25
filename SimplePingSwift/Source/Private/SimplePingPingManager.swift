@@ -28,6 +28,8 @@ public class SimplePingPingManager: PingManager {
                 let elapsed = abs(start.timeIntervalSinceNow)
                 self.results.updateValue(elapsed, forKey: packet)
                 responseHandler?(.success(PingSuccess(host: host, time: elapsed)))
+            case .failed(let error, _):
+                responseHandler?(.failure(error))
             default: break
             }
         }
