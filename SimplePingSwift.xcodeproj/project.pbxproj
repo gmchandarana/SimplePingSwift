@@ -15,6 +15,7 @@
 		9914A6FE2BD15E1B009EDC23 /* SimplePingAccessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914A6FD2BD15E1B009EDC23 /* SimplePingAccessTests.swift */; };
 		9984B7FB2BDA5FE0004A3820 /* PingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9984B7FA2BDA5FE0004A3820 /* PingSession.swift */; };
 		9984B7FD2BDA6047004A3820 /* PingSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9984B7FC2BDA6047004A3820 /* PingSessionTests.swift */; };
+		9984B8002BDA60FB004A3820 /* PingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9984B7FF2BDA60FB004A3820 /* PingManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,6 +39,7 @@
 		9914A7002BD15EE7009EDC23 /* SimplePingSwift.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = SimplePingSwift.modulemap; sourceTree = "<group>"; };
 		9984B7FA2BDA5FE0004A3820 /* PingSession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PingSession.swift; sourceTree = "<group>"; };
 		9984B7FC2BDA6047004A3820 /* PingSessionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PingSessionTests.swift; sourceTree = "<group>"; };
+		9984B7FF2BDA60FB004A3820 /* PingManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PingManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,9 +112,18 @@
 		9914A7032BD17092009EDC23 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				9984B7FE2BDA60BE004A3820 /* Public */,
 				9914A6EF2BD146AB009EDC23 /* Private */,
 			);
 			path = Source;
+			sourceTree = "<group>";
+		};
+		9984B7FE2BDA60BE004A3820 /* Public */ = {
+			isa = PBXGroup;
+			children = (
+				9984B7FF2BDA60FB004A3820 /* PingManager.swift */,
+			);
+			path = Public;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -228,6 +239,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9984B7FB2BDA5FE0004A3820 /* PingSession.swift in Sources */,
+				9984B8002BDA60FB004A3820 /* PingManager.swift in Sources */,
 				9914A6D32BD13942009EDC23 /* SimplePingSwift.docc in Sources */,
 				9914A6F32BD146C6009EDC23 /* SimplePing.m in Sources */,
 			);
