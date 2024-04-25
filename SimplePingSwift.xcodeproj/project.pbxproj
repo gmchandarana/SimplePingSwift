@@ -13,6 +13,8 @@
 		9914A6F22BD146C6009EDC23 /* SimplePing.h in Headers */ = {isa = PBXBuildFile; fileRef = 9914A6F02BD146C6009EDC23 /* SimplePing.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		9914A6F32BD146C6009EDC23 /* SimplePing.m in Sources */ = {isa = PBXBuildFile; fileRef = 9914A6F12BD146C6009EDC23 /* SimplePing.m */; };
 		9914A6FE2BD15E1B009EDC23 /* SimplePingAccessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914A6FD2BD15E1B009EDC23 /* SimplePingAccessTests.swift */; };
+		9984B7FB2BDA5FE0004A3820 /* PingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9984B7FA2BDA5FE0004A3820 /* PingSession.swift */; };
+		9984B7FD2BDA6047004A3820 /* PingSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9984B7FC2BDA6047004A3820 /* PingSessionTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,6 +36,8 @@
 		9914A6F12BD146C6009EDC23 /* SimplePing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SimplePing.m; sourceTree = "<group>"; };
 		9914A6FD2BD15E1B009EDC23 /* SimplePingAccessTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimplePingAccessTests.swift; sourceTree = "<group>"; };
 		9914A7002BD15EE7009EDC23 /* SimplePingSwift.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = SimplePingSwift.modulemap; sourceTree = "<group>"; };
+		9984B7FA2BDA5FE0004A3820 /* PingSession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PingSession.swift; sourceTree = "<group>"; };
+		9984B7FC2BDA6047004A3820 /* PingSessionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PingSessionTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,6 +92,7 @@
 			isa = PBXGroup;
 			children = (
 				9914A6FD2BD15E1B009EDC23 /* SimplePingAccessTests.swift */,
+				9984B7FC2BDA6047004A3820 /* PingSessionTests.swift */,
 			);
 			path = SimplePingSwiftTests;
 			sourceTree = "<group>";
@@ -97,6 +102,7 @@
 			children = (
 				9914A6F02BD146C6009EDC23 /* SimplePing.h */,
 				9914A6F12BD146C6009EDC23 /* SimplePing.m */,
+				9984B7FA2BDA5FE0004A3820 /* PingSession.swift */,
 			);
 			path = Private;
 			sourceTree = "<group>";
@@ -221,6 +227,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9984B7FB2BDA5FE0004A3820 /* PingSession.swift in Sources */,
 				9914A6D32BD13942009EDC23 /* SimplePingSwift.docc in Sources */,
 				9914A6F32BD146C6009EDC23 /* SimplePing.m in Sources */,
 			);
@@ -230,6 +237,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9984B7FD2BDA6047004A3820 /* PingSessionTests.swift in Sources */,
 				9914A6FE2BD15E1B009EDC23 /* SimplePingAccessTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -458,6 +466,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -481,6 +490,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
