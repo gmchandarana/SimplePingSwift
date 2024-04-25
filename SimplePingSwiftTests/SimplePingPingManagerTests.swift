@@ -52,7 +52,7 @@ final class SimplePingPingManagerTests: XCTestCase {
         wait(for: [expectation], timeout: 5)
     }
 
-    func testPingManagerShouldStopAfterSendingSpecifiedNumberOfRequests() {
+    func testPingManagerStopsAfterSendingSpecifiedNumberOfRequests() {
         let pingCount = 5
         let expectation = expectation(description: "The pingManager should stop after \(pingCount) requests.")
 
