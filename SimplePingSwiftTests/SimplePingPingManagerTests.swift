@@ -11,7 +11,9 @@ import XCTest
 final class SimplePingPingManagerTests: XCTestCase {
 
     var manager: PingManager!
-
+    let host = "example.com"
+    let invalidHost = "xa0com"
+    
     override func setUp() {
         super.setUp()
         manager = SimplePingPingManager()
@@ -24,5 +26,19 @@ final class SimplePingPingManagerTests: XCTestCase {
 
     func testInitialization() {
         XCTAssertNotNil(manager)
+    }
+
+    func testPingManagerPingSuccess() {
+        let expectation = expectation(description: "The pingManager should succeed.")
+        manager.ping(host: host, configuration: .default) { response in
+            switch response {
+            case .success: expectation.fulfill()
+            case .failure: XCTFail("Expected success, but received failure")
+            }
+        } resultHandler: { result in
+            
+        }
+
+        wait(for: [expectation], timeout: 5)
     }
 }
