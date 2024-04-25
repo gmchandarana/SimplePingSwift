@@ -15,7 +15,7 @@ protocol PingManager {
     func ping(
         host: String,
         configuration: PingConfiguration,
-        responseHandler: PingResponseHandler,
-        resultHandler: PingResultHandler
+        _ responseHandler: PingResponseHandler?,
+        _ resultHandler: PingResultHandler?
     )
 }

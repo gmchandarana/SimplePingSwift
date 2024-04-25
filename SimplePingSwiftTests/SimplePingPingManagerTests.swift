@@ -30,14 +30,12 @@ final class SimplePingPingManagerTests: XCTestCase {
 
     func testPingManagerPingSuccess() {
         let expectation = expectation(description: "The pingManager should succeed.")
-        manager.ping(host: host, configuration: .default) { response in
+        manager.ping(host: host, configuration: .default, { response in
             switch response {
             case .success: expectation.fulfill()
             case .failure: XCTFail("Expected success, but received failure")
             }
-        } resultHandler: { result in
-            
-        }
+        }, nil)
 
         wait(for: [expectation], timeout: 5)
     }
