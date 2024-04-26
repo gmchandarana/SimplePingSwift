@@ -73,4 +73,15 @@ final class SimplePingPingManagerTests: XCTestCase {
         }
         wait(for: [expectation], timeout: 6)
     }
+
+    func testPingManagerSendsValidResult() {
+        let expectation = XCTestExpectation(description: "After a specified number of ping requests, the ping manager should return a valid result.")
+        let pingCount = 8
+        let config = PingConfiguration(count: pingCount)
+        manager.ping(host: host, configuration: config, nil) { result in
+            XCTAssertTrue(result.count == pingCount)
+        }
+
+        wait(for: [expectation], timeout: 5)
+    }
 }
