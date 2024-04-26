@@ -14,10 +14,12 @@ class SimplePingPingManager: PingManager {
     private var results = [UInt16: Result<TimeInterval, Error>]()
     private var session: PingSession?
     private var responseHandler: PingResponseHandler?
+    private var resultHandler: PingResultHandler?
 
     func ping(host: String, configuration: PingConfiguration, _ responseHandler: PingResponseHandler? = nil, _ resultHandler: PingResultHandler? = nil) {
 
         self.responseHandler = responseHandler
+        self.resultHandler = resultHandler
         self.pingCount = configuration.count
         let session = PingSession(host: host, pingInterval: configuration.interval)
 
@@ -51,10 +53,16 @@ class SimplePingPingManager: PingManager {
         guard let requestedTime = requests[sequenceNumber] else { return }
         let elapsed = abs(requestedTime.timeIntervalSinceNow)
         results.updateValue(.success(elapsed), forKey: sequenceNumber)
-        let success = PingSuccess(host: host, time: elapsed)
-        responseHandler?(.success(success))
+        responseHandler?(.success(elapsed))
+        
         if results.count == pingCount {
             session?.stop()
+            let successes = results.values.compactMap { if case .success(let latency) = $0 { latency } else { nil } }
+            let success = Double(successes.count)/Double(pingCount)
+            let average = successes.reduce(0, +)/Double(pingCount)
+
+            let result = PingResult(host: host, count: pingCount, average: average, success: success, responses: results.values.map { $0 })
+            resultHandler?(result)
         }
     }
 

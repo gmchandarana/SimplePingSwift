@@ -7,7 +7,7 @@
 
 import Foundation
 
-typealias PingResponseHandler = ((Result<PingSuccess, Error>) -> Void)
+typealias PingResponseHandler = ((Result<TimeInterval, Error>) -> Void)
 typealias PingResultHandler = ((PingResult) -> Void)
 
 protocol PingManager {

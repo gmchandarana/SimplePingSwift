@@ -79,7 +79,9 @@ final class SimplePingPingManagerTests: XCTestCase {
         let pingCount = 8
         let config = PingConfiguration(count: pingCount)
         manager.ping(host: host, configuration: config, nil) { result in
+            print(result)
             XCTAssertTrue(result.count == pingCount)
+            expectation.fulfill()
         }
 
         wait(for: [expectation], timeout: 5)

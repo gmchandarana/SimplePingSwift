@@ -12,5 +12,11 @@ struct PingResult {
     let count: Int
     let average: Double
     let success: Double
-    let responses: [PingSuccess]
+    let responses: [Result<TimeInterval, Error>]
+}
+
+extension PingResult: CustomStringConvertible {
+    var description: String {
+        "PingResult(host: \(host), count: \(count), average: \(average), success: \(success), responses: Array of Result<TimeInterval, Error>"
+    }
 }
