@@ -11,7 +11,7 @@ class SimplePingPingManager: PingManager {
 
     private var pingCount = Int()
     private var requests = [UInt16: Date]()
-    private var results = [UInt16: TimeInterval]()
+    private var results = [UInt16: Result<TimeInterval, Error>]()
     private var session: PingSession?
     private var responseHandler: PingResponseHandler?
 
@@ -30,20 +30,37 @@ class SimplePingPingManager: PingManager {
 
     private func handle(_ response: PingSessionResponse) {
         switch response {
-        case .sent(_, let packet, _): requests.updateValue(Date(), forKey: packet)
-
-        case .received(_, let packet, let host):
-            guard let start = requests[packet] else { return }
-            let elapsed = abs(start.timeIntervalSinceNow)
-            results.updateValue(elapsed, forKey: packet)
-            responseHandler?(.success(PingSuccess(host: host, time: elapsed)))
-
-            if results.count == pingCount {
-                 session?.stop()
-            }
-
-        case .failed(let error, _): responseHandler?(.failure(error))
-        default: break
+        case .didStartPinging: break
+        case .didSendPacketTo(let host, let sequenceNumber):
+            updateRequestTimestampForPacket(from: host, with: sequenceNumber)
+        case .didFailToSendPacketTo(let host, let sequenceNumber, let error):
+            handleFailedToSendPacket(from: host, with: sequenceNumber, error: error)
+        case .didReceivePacketFrom(let host, let sequenceNumber):
+            handleReceivedPacket(from: host, with: sequenceNumber)
+        case .didReceiveUnexpectedPacketFrom: break
+        case .didFailToStartPinging(_, let error):
+            responseHandler?(.failure(error))
         }
+    }
+
+    private func updateRequestTimestampForPacket(from host: String, with sequenceNumber: UInt16) {
+        requests.updateValue(Date(), forKey: sequenceNumber)
+    }
+
+    private func handleReceivedPacket(from host: String, with sequenceNumber: UInt16) {
+        guard let requestedTime = requests[sequenceNumber] else { return }
+        let elapsed = abs(requestedTime.timeIntervalSinceNow)
+        results.updateValue(.success(elapsed), forKey: sequenceNumber)
+        let success = PingSuccess(host: host, time: elapsed)
+        responseHandler?(.success(success))
+        if results.count == pingCount {
+            session?.stop()
+        }
+    }
+
+    private func handleFailedToSendPacket(from host: String, with sequenceNumber: UInt16, error: Error) {
+        guard requests[sequenceNumber] != nil else { return }
+        results.updateValue(.failure(error), forKey: sequenceNumber)
+        responseHandler?(.failure(error))
     }
 }

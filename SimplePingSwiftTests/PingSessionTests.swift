@@ -30,7 +30,7 @@ final class PingSessionTests: XCTestCase {
         session.start { [weak self] response in
             guard let self else { return }
             switch response {
-            case .started(let host, _):
+            case .didStartPinging(let host, _):
                 XCTAssertEqual(host, self.host)
                 expectation.fulfill()
             default: break
@@ -46,9 +46,9 @@ final class PingSessionTests: XCTestCase {
         session.start { [weak self] response in
             guard let self else { return }
             switch response {
-            case .started:
+            case .didStartPinging:
                 XCTFail("Expected failure, but received success")
-            case .failed(_, let host):
+            case .didFailToStartPinging(let host, _):
                 XCTAssertEqual(host, self.invalidHost)
                 expectation.fulfill()
             default: break
@@ -62,7 +62,7 @@ final class PingSessionTests: XCTestCase {
         session.start { [weak self] response in
             guard let self else { return }
             switch response {
-            case .started(let host, _):
+            case .didStartPinging(let host, _):
                 XCTAssertEqual(host, self.host)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
                     self.session.stop()
@@ -81,7 +81,7 @@ final class PingSessionTests: XCTestCase {
 
         session.start { response in
             switch response {
-            case .failed: expectation.fulfill()
+            case .didFailToStartPinging: expectation.fulfill()
             default: break
             }
         }
@@ -95,13 +95,13 @@ final class PingSessionTests: XCTestCase {
 
         session.start { response in
             switch response {
-            case .started:
+            case .didStartPinging:
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
                     guard let self else { return }
                     self.session.stop()
                     expectation.fulfill()
                 }
-            case .failed: expectation.fulfill()
+            case .didFailToStartPinging: expectation.fulfill()
             default: break
             }
         }
@@ -116,7 +116,7 @@ final class PingSessionTests: XCTestCase {
         session.start { [weak self] response in
             guard let self else { return }
             switch response {
-            case .started: 
+            case .didStartPinging: 
                 XCTAssertTrue(self.session.isActive)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                     self.session.stop()

@@ -9,11 +9,12 @@ import Foundation
 import SimplePingSwift.Private
 
 enum PingSessionResponse {
-    case started(_ host: String, address: Data)
-    case sent(_ packet: Data, _ sequenceNumber: UInt16, _ host: String)
-    case received(_ packet: Data, _ sequenceNumber: UInt16, _ host: String)
-    case receivedUnexpected(_ packet: Data)
-    case failed(_ error: Error,  _ host: String)
+    case didStartPinging(host: String, address: Data)
+    case didSendPacketTo(host: String, sequenceNumber: UInt16)
+    case didFailToSendPacketTo(host: String, sequenceNumber: UInt16, error: Error)
+    case didReceivePacketFrom(host: String, sequenceNumber: UInt16)
+    case didReceiveUnexpectedPacketFrom(host: String)
+    case didFailToStartPinging(host: String, error: Error)
 }
 
 class PingSession: NSObject {
@@ -43,11 +44,11 @@ class PingSession: NSObject {
     }
 
     func stop() {
+        timer?.invalidate()
+        timer = nil
         pinger?.stop()
         pinger = nil
         handler = nil
-        timer?.invalidate()
-        timer = nil
     }
 
     private func initializePinger() {
@@ -67,23 +68,27 @@ extension PingSession: SimplePingDelegate {
 
     func simplePing(_ pinger: SimplePing, didStartWithAddress address: Data) {
         startPinging()
-        handler?(.started(host, address: address))
+        handler?(.didStartPinging(host: host, address: address))
     }
 
     func simplePing(_ pinger: SimplePing, didSendPacket packet: Data, sequenceNumber: UInt16) {
-        handler?(.sent(packet, sequenceNumber, host))
+        handler?(.didSendPacketTo(host: host, sequenceNumber: sequenceNumber))
+    }
+
+    func simplePing(_ pinger: SimplePing, didFailToSendPacket packet: Data, sequenceNumber: UInt16, error: any Error) {
+        handler?(.didFailToSendPacketTo(host: host, sequenceNumber: sequenceNumber, error: error))
     }
 
     func simplePing(_ pinger: SimplePing, didReceivePingResponsePacket packet: Data, sequenceNumber: UInt16) {
-        handler?(.received(packet, sequenceNumber, host))
+        handler?(.didReceivePacketFrom(host: host, sequenceNumber: sequenceNumber))
     }
 
     func simplePing(_ pinger: SimplePing, didFailWithError error: Error) {
-        handler?(.failed(error, host))
+        handler?(.didFailToStartPinging(host: host, error: error))
         stop()
     }
 
     func simplePing(_ pinger: SimplePing, didReceiveUnexpectedPacket packet: Data) {
-        handler?(.receivedUnexpected(packet))
+        handler?(.didReceiveUnexpectedPacketFrom(host: host))
     }
 }
