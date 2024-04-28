@@ -10,12 +10,14 @@ import Foundation
 typealias PingResponseHandler = ((Result<TimeInterval, Error>) -> Void)
 typealias PingResultHandler = ((PingResult) -> Void)
 
-protocol PingManager {
+protocol PingManagerDelegate {
+    func didStartPinging(host: String)
+    func didFailToStartPinging(host: String, error: Error)
+    func didReceiveResponse(from host: String, response: Result<TimeInterval, Error>)
+    func didFinishPinging(host: String, result: PingResult)
+}
 
-    func ping(
-        host: String,
-        configuration: PingConfiguration,
-        _ responseHandler: PingResponseHandler?,
-        _ resultHandler: PingResultHandler?
-    )
+protocol PingManager {
+    var delegate: PingManagerDelegate? { get set }
+    func ping(host: String, configuration: PingConfiguration)
 }

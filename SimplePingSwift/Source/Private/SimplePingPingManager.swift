@@ -13,16 +13,15 @@ class SimplePingPingManager: PingManager {
     private var requests = [UInt16: Date]()
     private var results = [UInt16: Result<TimeInterval, Error>]()
     private var session: PingSession?
-    private var responseHandler: PingResponseHandler?
-    private var resultHandler: PingResultHandler?
+    var delegate: (any PingManagerDelegate)?
 
-    func ping(host: String, configuration: PingConfiguration, _ responseHandler: PingResponseHandler? = nil, _ resultHandler: PingResultHandler? = nil) {
+    init(delegate: PingManagerDelegate? = nil) {
+        self.delegate = delegate
+    }
 
-        self.responseHandler = responseHandler
-        self.resultHandler = resultHandler
-        self.pingCount = configuration.count
+    func ping(host: String, configuration: PingConfiguration) {
+        pingCount = configuration.count
         let session = PingSession(host: host, pingInterval: configuration.interval)
-
         session.start { [weak self] response in
             guard let self else { return }
             self.handle(response)
@@ -32,7 +31,8 @@ class SimplePingPingManager: PingManager {
 
     private func handle(_ response: PingSessionResponse) {
         switch response {
-        case .didStartPinging: break
+        case .didStartPinging(let host, _):
+            delegate?.didStartPinging(host: host)
         case .didSendPacketTo(let host, let sequenceNumber):
             updateRequestTimestampForPacket(from: host, with: sequenceNumber)
         case .didFailToSendPacketTo(let host, let sequenceNumber, let error):
@@ -40,8 +40,8 @@ class SimplePingPingManager: PingManager {
         case .didReceivePacketFrom(let host, let sequenceNumber):
             handleReceivedPacket(from: host, with: sequenceNumber)
         case .didReceiveUnexpectedPacketFrom: break
-        case .didFailToStartPinging(_, let error):
-            responseHandler?(.failure(error))
+        case .didFailToStartPinging(let host, let error):
+            delegate?.didFailToStartPinging(host: host, error: error)
         }
     }
 
@@ -53,8 +53,8 @@ class SimplePingPingManager: PingManager {
         guard let requestedTime = requests[sequenceNumber] else { return }
         let elapsed = abs(requestedTime.timeIntervalSinceNow)
         results.updateValue(.success(elapsed), forKey: sequenceNumber)
-        responseHandler?(.success(elapsed))
-        
+        delegate?.didReceiveResponse(from: host, response: .success(elapsed))
+
         if results.count == pingCount {
             session?.stop()
             let successes = results.values.compactMap { if case .success(let latency) = $0 { latency } else { nil } }
@@ -62,13 +62,13 @@ class SimplePingPingManager: PingManager {
             let average = successes.reduce(0, +)/Double(pingCount)
 
             let result = PingResult(host: host, count: pingCount, average: average, success: success, responses: results.values.map { $0 })
-            resultHandler?(result)
+            delegate?.didFinishPinging(host: host, result: result)
         }
     }
 
     private func handleFailedToSendPacket(from host: String, with sequenceNumber: UInt16, error: Error) {
         guard requests[sequenceNumber] != nil else { return }
         results.updateValue(.failure(error), forKey: sequenceNumber)
-        responseHandler?(.failure(error))
+        delegate?.didReceiveResponse(from: host, response: .failure(error))
     }
 }
