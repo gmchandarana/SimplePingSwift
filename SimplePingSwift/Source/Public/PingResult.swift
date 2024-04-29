@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct PingResult {
+public struct PingResult {
     let host: String
     let count: Int
     let average: Double
@@ -16,7 +16,7 @@ struct PingResult {
 }
 
 extension PingResult: CustomStringConvertible {
-    var description: String {
+    public var description: String {
         "PingResult(host: \(host), count: \(count), average: \(average), success: \(success), responses: Array of Result<TimeInterval, Error>"
     }
 }

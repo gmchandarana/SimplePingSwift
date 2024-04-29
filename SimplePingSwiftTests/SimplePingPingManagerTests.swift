@@ -93,7 +93,7 @@ private struct MockPingManagerDelegate: PingManagerDelegate {
         didFailToStartPingingExpectation?.fulfill()
     }
 
-    func didReceiveResponse(from host: String, response: Result<TimeInterval, any Error>) {
+    func didReceiveResponseFrom(host: String, response: Result<TimeInterval, any Error>) {
         didReceiveResponseExpectation?.fulfill()
     }
 

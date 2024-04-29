@@ -7,14 +7,14 @@
 
 import Foundation
 
-protocol PingManagerDelegate {
+public protocol PingManagerDelegate {
     func didStartPinging(host: String)
     func didFailToStartPinging(host: String, error: Error)
-    func didReceiveResponse(from host: String, response: Result<TimeInterval, Error>)
+    func didReceiveResponseFrom(host: String, response: Result<TimeInterval, Error>)
     func didFinishPinging(host: String, result: PingResult)
 }
 
-protocol PingManager {
+public protocol PingManager {
     var delegate: PingManagerDelegate? { get set }
     func ping(host: String, configuration: PingConfiguration)
 }

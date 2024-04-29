@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct PingConfiguration {
+public struct PingConfiguration {
     let count: Int
     let interval: TimeInterval
     let timeoutInterval: TimeInterval
