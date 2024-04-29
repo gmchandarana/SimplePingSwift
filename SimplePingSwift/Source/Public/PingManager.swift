@@ -7,9 +7,6 @@
 
 import Foundation
 
-typealias PingResponseHandler = ((Result<TimeInterval, Error>) -> Void)
-typealias PingResultHandler = ((PingResult) -> Void)
-
 protocol PingManagerDelegate {
     func didStartPinging(host: String)
     func didFailToStartPinging(host: String, error: Error)
