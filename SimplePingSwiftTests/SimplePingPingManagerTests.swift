@@ -75,6 +75,17 @@ final class SimplePingPingManagerTests: XCTestCase {
         manager.ping(host: host, configuration: config)
         wait(for: [expectation], timeout: 5)
     }
+
+    func testPingManagerRequestsTimeoutForUnknowLocalIP() {
+        let host = "127.0.0.0"
+        let expectation = XCTestExpectation(description: "PingManager requests should time out when pinging unknown local IP.")
+        var delegate = MockPingManagerDelegate()
+        delegate.expectingErroredResponse = true
+        delegate.requestDidTimeoutExpectation = expectation
+        manager.delegate = delegate
+        manager.ping(host: host, configuration: .init(count: 1))
+        wait(for: [expectation], timeout: 120)
+    }
 }
 
 private struct MockPingManagerDelegate: PingManagerDelegate {
@@ -83,7 +94,9 @@ private struct MockPingManagerDelegate: PingManagerDelegate {
     var didFailToStartPingingExpectation: XCTestExpectation?
     var didReceiveResponseExpectation: XCTestExpectation?
     var didReceiveResultExpectation: XCTestExpectation?
+    var requestDidTimeoutExpectation: XCTestExpectation?
     var expectedPingCount: Int?
+    var expectingErroredResponse: Bool?
 
     func didStartPinging(host: String) {
         didStartPingingExpectation?.fulfill()
@@ -94,7 +107,15 @@ private struct MockPingManagerDelegate: PingManagerDelegate {
     }
 
     func didReceiveResponseFrom(host: String, response: Result<TimeInterval, any Error>) {
-        didReceiveResponseExpectation?.fulfill()
+        guard expectingErroredResponse != nil else {
+            didReceiveResponseExpectation?.fulfill()
+            return
+        }
+        switch response {
+        case .success: break
+        case .failure(let error):
+            requestDidTimeoutExpectation?.fulfill()
+        }
     }
 
     func didFinishPinging(host: String, result: PingResult) {
