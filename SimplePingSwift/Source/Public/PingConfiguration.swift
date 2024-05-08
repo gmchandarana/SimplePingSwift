@@ -13,6 +13,9 @@ public struct PingConfiguration {
     let timeoutInterval: TimeInterval
 
     init(count: Int = 5, interval: TimeInterval = 0.5, timeoutInterval: TimeInterval = 2) {
+        precondition(interval > 0.1)
+        precondition(timeoutInterval > 0.5)
+
         self.count = count
         self.interval = interval
         self.timeoutInterval = timeoutInterval

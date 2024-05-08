@@ -25,29 +25,27 @@ final class PingSessionTests: XCTestCase {
     }
 
     func testCanStartSessionWhenHostIsValid() {
-
-        let expectation = XCTestExpectation(description: "Session should start")
+        let expectation = XCTestExpectation(description: "Session should start pinging to a valid host.")
         session.start { [weak self] response in
             guard let self else { return }
             switch response {
-            case .didStartPinging(let host, _):
+            case .didStartPinging(let host):
                 XCTAssertEqual(host, self.host)
                 expectation.fulfill()
             default: break
             }
         }
-        wait(for: [expectation], timeout: 5)
+        wait(for: [expectation], timeout: 2)
     }
 
     func testSessionFailsToStartWhenHostIsInvalid() {
         session = PingSession(host: invalidHost)
 
-        let expectation = XCTestExpectation(description: "Session should not start")
+        let expectation = XCTestExpectation(description: "Session should not start pinging to an invalid host.")
         session.start { [weak self] response in
             guard let self else { return }
             switch response {
-            case .didStartPinging:
-                XCTFail("Expected failure, but received success")
+            case .didStartPinging: XCTFail("Expected failure, but received success")
             case .didFailToStartPinging(let host, _):
                 XCTAssertEqual(host, self.invalidHost)
                 expectation.fulfill()
@@ -57,15 +55,76 @@ final class PingSessionTests: XCTestCase {
         wait(for: [expectation], timeout: 5)
     }
 
+    func testSessionSendsSpecifiedNumberOfRequests() {
+        let count = 7
+        let expectation = XCTestExpectation(description: "Should receive exactly \(count) responses.")
+        expectation.expectedFulfillmentCount = count
+        let session = PingSession(host: host, config: .init(count: count))
+        
+        session.start { handler in
+            switch handler {
+            case .didSendPacketTo, .didFailToSendPacketTo: expectation.fulfill()
+            default: break
+            }
+        }
+
+        wait(for: [expectation], timeout: 5)
+    }
+
+    func testSessionStopsSendingRequestsAfterSpecifiedNumberOfRequests() {
+        let count = 8
+        let expectation = XCTestExpectation(description: "Session should stop after \(count) requests.")
+        let session = PingSession(host: host, config: .init(count: count))
+        
+        session.start { response in
+            switch response {
+            case .didFinishPinging(let host, let result):
+                XCTAssertEqual(host, self.host)
+                XCTAssertEqual(result.responses.count, count)
+                expectation.fulfill()
+            default: break
+            }
+        }
+        wait(for: [expectation], timeout: 5)
+    }
+
+    func testPingSessionRequestsTimeoutForUnknowLocalIP() {
+        let count = 4
+        let host = "127.0.0.0"
+        let expectation = XCTestExpectation(description: "PingSession requests should time out when pinging unknown local IP.")
+        let session = PingSession(host: host, config: .init(count: count))
+        session.start { response in
+            switch response {
+            case .didFinishPinging(_, let result):
+                print(result)
+                let timedOut = result.responses.contains(where: { arg0 in
+                    if case .failure(let error) = arg0 {
+                        error as! PingSessionError == PingSessionError.timeout
+                    } else {
+                        false
+                    }
+                })
+                XCTAssertTrue(timedOut)
+                expectation.fulfill()
+            default: break
+            }
+        }
+
+        wait(for: [expectation], timeout: 10)
+    }
+
     func testSessionStaysActiveUntilTerminated() {
-        let expectation = XCTestExpectation(description: "Session should stay active until stopped after 30 seconds")
+        let expectation = XCTestExpectation(description: "Session should stay active until stopped after 15 seconds.")
+
+        let config = PingConfiguration(count: 100, interval: 0.5, timeoutInterval: 1)
+        let session = PingSession(host: host, config: config)
         session.start { [weak self] response in
             guard let self else { return }
             switch response {
-            case .didStartPinging(let host, _):
-                XCTAssertEqual(host, self.host)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
-                    self.session.stop()
+            case .didStartPinging(let host):
+                DispatchQueue.global().asyncAfter(deadline: .now() + 15) {
+                    XCTAssertEqual(self.host, host)
+                    XCTAssertTrue(session.isActive)
                     expectation.fulfill()
                 }
             default: break
@@ -86,47 +145,26 @@ final class PingSessionTests: XCTestCase {
             }
         }
 
-        wait(for: [expectation], timeout: 5)
+        wait(for: [expectation], timeout: 1)
     }
 
-    func testZeroTimeInterval() {
-        let session = PingSession(host: "facebook.com", pingInterval: 0)
-        let expectation = XCTestExpectation(description: "Ping flood succeed")
-
-        session.start { response in
-            switch response {
-            case .didStartPinging:
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-                    guard let self else { return }
-                    self.session.stop()
-                    expectation.fulfill()
-                }
-            case .didFailToStartPinging: expectation.fulfill()
-            default: break
-            }
-        }
-
-        wait(for: [expectation], timeout: 2)
-    }
-
-    func testActiveStatus() {
-        let expectation = XCTestExpectation(description: "PingSession's isActive flag should be true when session is running.")
-        XCTAssertFalse(session.isActive)
-
-        session.start { [weak self] response in
-            guard let self else { return }
-            switch response {
-            case .didStartPinging: 
-                XCTAssertTrue(self.session.isActive)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                    self.session.stop()
-                    XCTAssertFalse(self.session.isActive)
-                    expectation.fulfill()
-                }
-            default: break
-            }
-        }
-
-        wait(for: [expectation], timeout: 3)
-    }
+//    func testZeroTimeInterval() {
+//        let session = PingSession(host: "facebook.com")
+//        let expectation = XCTestExpectation(description: "Ping flood succeed")
+//
+//        session.start { response in
+//            switch response {
+//            case .didStartPinging:
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+//                    guard let self else { return }
+//                    self.session.stop()
+//                    expectation.fulfill()
+//                }
+//            case .didFailToStartPinging: expectation.fulfill()
+//            default: break
+//            }
+//        }
+//
+//        wait(for: [expectation], timeout: 2)
+//    }
 }

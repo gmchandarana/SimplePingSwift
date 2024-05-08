@@ -113,7 +113,7 @@ private struct MockPingManagerDelegate: PingManagerDelegate {
         }
         switch response {
         case .success: break
-        case .failure(let error):
+        case .failure:
             requestDidTimeoutExpectation?.fulfill()
         }
     }
