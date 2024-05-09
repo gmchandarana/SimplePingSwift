@@ -39,8 +39,8 @@ class PingSession: NSObject {
 
     func start(eventHandler: @escaping ((PingSessionResponse) -> Void)) {
         handler = eventHandler
-        pinger = SimplePing(hostName: host)
         requestManager = PingRequestManager(maxRequests: config.count, callBack: pingRequestManagerCallBackHandler)
+        pinger = SimplePing(hostName: host)
         pinger?.delegate = self
         pinger?.start()
     }
@@ -74,7 +74,7 @@ class PingSession: NSObject {
                 pingTimer.nullify()
             }
         } else if case .results(let dictionary) = callBack {
-            let result = PingResult(host: host, count: config.count, responses: dictionary.map { $0.value })
+            let result = PingResult(host: host, count: config.count, responses: dictionary)
             handler?(.didFinishPinging(host: host, result: result))
         }
     }
@@ -84,7 +84,8 @@ class PingSession: NSObject {
         pinger = nil
         pingTimer.nullify()
         timeoutTimer.nullify()
-        let result = PingResult(host: host, count: config.count, responses: requestManager.results.map { $0.value })
+        requestManager.updateResultsForTimeout()
+        let result = PingResult(host: host, count: config.count, responses: requestManager.results)
         handler?(.didFinishPinging(host: host, result: result))
     }
 }

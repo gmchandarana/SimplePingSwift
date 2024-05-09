@@ -17,12 +17,12 @@ public struct PingResult {
 
 extension PingResult {
 
-    init(host: String, count: Int, responses: [Result<TimeInterval, Error>]) {
+    init(host: String, count: Int, responses: [UInt16: Result<TimeInterval, Error>]) {
         self.host = host
         self.count = responses.count
-        self.responses = responses
+        self.responses = responses.map { $0.value }
 
-        let successfulResponses = responses.compactMap {
+        let successfulResponses = self.responses.compactMap {
             if case let .success(timeInterval) = $0 { timeInterval } else { nil }
         }
 

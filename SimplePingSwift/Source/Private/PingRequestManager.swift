@@ -56,4 +56,12 @@ struct PingRequestManager {
     func failureReasonFor(packet: UInt16) -> Error? {
         unsuccessfulRequests[packet]
     }
+
+    mutating func updateResultsForTimeout() {
+        let resultKeys = results.keys
+        let timeoutRequests = successfulRequests.filter { !resultKeys.contains($0.key) }
+        for request in timeoutRequests {
+            results.updateValue(.failure(PingSessionError.timeout), forKey: request.key)
+        }
+    }
 }

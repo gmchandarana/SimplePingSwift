@@ -80,11 +80,11 @@ final class SimplePingPingManagerTests: XCTestCase {
         let host = "127.0.0.0"
         let expectation = XCTestExpectation(description: "PingManager requests should time out when pinging unknown local IP.")
         var delegate = MockPingManagerDelegate()
-        delegate.expectingErroredResponse = true
-        delegate.requestDidTimeoutExpectation = expectation
+        delegate.expectingTimeoutResult = true
+        delegate.didReceiveTimeoutResultExpectation = expectation
         manager.delegate = delegate
-        manager.ping(host: host, configuration: .init(count: 1))
-        wait(for: [expectation], timeout: 120)
+        manager.ping(host: host, configuration: .init(count: 1, timeoutInterval: 2))
+        wait(for: [expectation], timeout: 5)
     }
 }
 
@@ -94,9 +94,12 @@ private struct MockPingManagerDelegate: PingManagerDelegate {
     var didFailToStartPingingExpectation: XCTestExpectation?
     var didReceiveResponseExpectation: XCTestExpectation?
     var didReceiveResultExpectation: XCTestExpectation?
-    var requestDidTimeoutExpectation: XCTestExpectation?
+    var didReceiveErroredResponseExpectation: XCTestExpectation?
+    var didReceiveTimeoutResultExpectation: XCTestExpectation?
+
     var expectedPingCount: Int?
     var expectingErroredResponse: Bool?
+    var expectingTimeoutResult: Bool?
 
     func didStartPinging(host: String) {
         didStartPingingExpectation?.fulfill()
@@ -107,14 +110,14 @@ private struct MockPingManagerDelegate: PingManagerDelegate {
     }
 
     func didReceiveResponseFrom(host: String, response: Result<TimeInterval, any Error>) {
-        guard expectingErroredResponse != nil else {
+        guard expectingErroredResponse == true else {
             didReceiveResponseExpectation?.fulfill()
             return
         }
+
         switch response {
-        case .success: break
-        case .failure:
-            requestDidTimeoutExpectation?.fulfill()
+        case .success: XCTFail("Expected failure, but received success.")
+        case .failure: didReceiveErroredResponseExpectation?.fulfill()
         }
     }
 
@@ -122,7 +125,19 @@ private struct MockPingManagerDelegate: PingManagerDelegate {
         if let expectedPingCount {
             XCTAssertEqual(expectedPingCount, result.count)
         }
-        
+
+        if expectingTimeoutResult == true {
+            let timeoutRequest = result.responses.contains(where: { response in
+                if case .failure(let failure) = response {
+                    return PingSessionError.timeout == failure as! PingSessionError
+                } else {
+                    return false
+                }
+            })
+            XCTAssertTrue(timeoutRequest)
+            didReceiveTimeoutResultExpectation?.fulfill()
+        }
+
         didReceiveResultExpectation?.fulfill()
     }
 }
