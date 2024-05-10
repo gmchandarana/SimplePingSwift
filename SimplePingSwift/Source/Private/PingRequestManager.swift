@@ -43,6 +43,7 @@ struct PingRequestManager {
         callBack(.count(requests.count))
     }
 
+    @discardableResult
     mutating func handleReceived(responseAt date: Date, for sequenceNumber: UInt16) -> TimeInterval? {
         guard case .sent(date: let sendTime) = requests[sequenceNumber] else { return nil }
         let elapsed = abs(sendTime.timeIntervalSince(date))
