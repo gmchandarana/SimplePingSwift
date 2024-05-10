@@ -17,7 +17,7 @@ public struct PingResult {
 
 extension PingResult {
 
-    init(host: String, count: Int, responses: [UInt16: Result<TimeInterval, Error>]) {
+    init(host: String, responses: [UInt16: Result<TimeInterval, Error>]) {
         self.host = host
         self.count = responses.count
         self.responses = responses.map { $0.value }

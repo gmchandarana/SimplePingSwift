@@ -114,7 +114,7 @@ final class PingSessionTests: XCTestCase {
     }
 
     func testSessionStaysActiveUntilTerminated() {
-        let expectation = XCTestExpectation(description: "Session should stay active until stopped after 15 seconds.")
+        let expectation = XCTestExpectation(description: "Session should stay active until stopped after 5 seconds.")
 
         let config = PingConfiguration(count: 100, interval: 0.5, timeoutInterval: 1)
         let session = PingSession(host: host, config: config)
@@ -122,7 +122,7 @@ final class PingSessionTests: XCTestCase {
             guard let self else { return }
             switch response {
             case .didStartPinging(let host):
-                DispatchQueue.global().asyncAfter(deadline: .now() + 15) {
+                DispatchQueue.global().asyncAfter(deadline: .now() + 5) {
                     XCTAssertEqual(self.host, host)
                     XCTAssertTrue(session.isActive)
                     expectation.fulfill()
@@ -131,7 +131,7 @@ final class PingSessionTests: XCTestCase {
             }
         }
 
-        wait(for: [expectation], timeout: 20) // 15 + 5 seconds buffer
+        wait(for: [expectation], timeout: 10) // 15 + 5 seconds buffer
     }
 
     func testEmptyHostInitialization() {
@@ -148,23 +148,50 @@ final class PingSessionTests: XCTestCase {
         wait(for: [expectation], timeout: 1)
     }
 
-//    func testZeroTimeInterval() {
-//        let session = PingSession(host: "facebook.com")
-//        let expectation = XCTestExpectation(description: "Ping flood succeed")
-//
-//        session.start { response in
-//            switch response {
-//            case .didStartPinging:
-//                DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-//                    guard let self else { return }
-//                    self.session.stop()
-//                    expectation.fulfill()
-//                }
-//            case .didFailToStartPinging: expectation.fulfill()
-//            default: break
-//            }
-//        }
-//
-//        wait(for: [expectation], timeout: 2)
-//    }
+    func testPingSessionCanStop() {
+        let pingCount = 20
+        let stoppingAtCount = pingCount - Int.random(in: 0..<pingCount)
+
+        let expectation = XCTestExpectation(description: "Ping Session stops pinging after \(stoppingAtCount) requests, and results should reflect the same count.")
+
+        let config = PingConfiguration(count: pingCount, interval: 0.1)
+        let session = PingSession(host: host, config: config)
+
+        var currentCount = 0
+
+        session.start { response in
+            switch response {
+            case .didFinishPinging(_, let result):
+                guard result.count == stoppingAtCount else { return }
+                expectation.fulfill()
+            case .didSendPacketTo:
+                if currentCount == stoppingAtCount {
+                    session.stop()
+                }
+                currentCount += 1
+            default: break
+            }
+        }
+
+        wait(for: [expectation], timeout: 2.5)
+    }
+
+    func testPingSessionWithMinimumTimeoutInterval() {
+        let expectation = XCTestExpectation(description: "Ping Session sends a valid result for smallest timeout interval.")
+        let count = 50
+        let config = PingConfiguration(count: count, interval: 0.1, timeoutInterval: 0.01)
+        let session = PingSession(host: host, config: config)
+
+        session.start { response in
+            switch response {
+            case .didFinishPinging(_, let result):
+                print(result)
+                XCTAssertEqual(result.count, count)
+                expectation.fulfill()
+            default: break
+            }
+        }
+
+        wait(for: [expectation], timeout: 15)
+    }
 }
