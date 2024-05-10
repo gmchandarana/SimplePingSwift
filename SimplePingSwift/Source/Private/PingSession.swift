@@ -46,7 +46,7 @@ class PingSession: NSObject {
     }
 
     func stop() {
-        handleTimeout()
+        stopAndNotifyResults()
     }
 
     private func setPingTimer() {
@@ -59,9 +59,12 @@ class PingSession: NSObject {
 
     private func setTimeoutTimer() {
         let totalTimeoutInterval = config.timeoutInterval * Double(config.count)
-        let timer = Timer.scheduledTimer(withTimeInterval:  totalTimeoutInterval, repeats: false) { [weak self] timer in
+        let totalSendingTime = config.interval * Double(config.count)
+        let minRequiredTime = max(totalTimeoutInterval, totalSendingTime)
+        
+        let timer = Timer.scheduledTimer(withTimeInterval: minRequiredTime, repeats: false) { [weak self] timer in
             guard let self else { return timer.invalidate() }
-            handleTimeout()
+            stopAndNotifyResults(didTimeout: true)
         }
         timeoutTimer = timer
     }
@@ -74,18 +77,18 @@ class PingSession: NSObject {
                 pingTimer.nullify()
             }
         } else if case .results(let dictionary) = callBack {
-            let result = PingResult(host: host, count: config.count, responses: dictionary)
+            let result = PingResult(host: host, responses: dictionary)
             handler?(.didFinishPinging(host: host, result: result))
         }
     }
 
-    private func handleTimeout() {
+    private func stopAndNotifyResults(didTimeout: Bool = false) {
         pinger?.stop()
         pinger = nil
         pingTimer.nullify()
         timeoutTimer.nullify()
-        requestManager.updateResultsForTimeout()
-        let result = PingResult(host: host, count: config.count, responses: requestManager.results)
+        if didTimeout { requestManager.updateResultsForTimeout() }
+        let result = PingResult(host: host, responses: requestManager.results)
         handler?(.didFinishPinging(host: host, result: result))
     }
 }
