@@ -15,53 +15,45 @@ enum PingRequestManagerCallBackType {
 struct PingRequestManager {
 
     let maxRequests: Int
-    private var successfulRequests: [UInt16: Date] = [:]
-    private var unsuccessfulRequests: [UInt16: Error] = [:]
-    private (set) var results: [UInt16: Result<TimeInterval, Error>] = [:] {
+
+    private var requests = [UInt16: PingRequestStatus]() {
         didSet {
-            guard results.count == maxRequests else { return }
+            guard requests.count == maxRequests else { return }
+            guard requests.values.allSatisfy ({ if case .sent = $0 { false } else { true }}) else { return }
             callBack(.results(results))
         }
     }
 
+    var results: [UInt16: Result<TimeInterval, Error>] {
+        requests.reduce(into: [UInt16: Result<TimeInterval, Error>]()) { res, next in
+            guard let val = next.value.response() else { return }
+            res.updateValue(val, forKey: next.key)
+        }
+    }
+
     private var callBack: (PingRequestManagerCallBackType) -> Void
-    private var totalRequests: Int { successfulRequests.count + unsuccessfulRequests.count }
 
     init(maxRequests: Int, callBack: @escaping ((PingRequestManagerCallBackType) -> Void)) {
         self.maxRequests = maxRequests
         self.callBack = callBack
     }
 
-    mutating func addSent(request: Result<Date, Error>, for packet: UInt16) {
-        switch request {
-        case .success(let success): successfulRequests.updateValue(success, forKey: packet)
-        case .failure(let failure):
-            unsuccessfulRequests.updateValue(failure, forKey: packet)
-            results.updateValue(.failure(failure), forKey: packet)
-        }
-        callBack(.count(totalRequests))
+    mutating func handleSent(request: Result<Date, Error>, for sequenceNumber: UInt16) {
+        requests.updateValue(PingRequestStatus(request: request), forKey: sequenceNumber)
+        callBack(.count(requests.count))
     }
 
-    mutating func handleReceivedResponse(at: Date, for packet: UInt16) -> TimeInterval? {
-        guard let sendTime = requestTimeFor(packet: packet) else { return nil }
-        let elapsed = abs(sendTime.timeIntervalSinceNow)
-        results.updateValue(.success(elapsed), forKey: packet)
+    mutating func handleReceived(responseAt date: Date, for sequenceNumber: UInt16) -> TimeInterval? {
+        guard case .sent(date: let sendTime) = requests[sequenceNumber] else { return nil }
+        let elapsed = abs(sendTime.timeIntervalSince(date))
+        requests.updateValue(.received(elapsed), forKey: sequenceNumber)
         return elapsed
     }
 
-    func requestTimeFor(packet: UInt16) -> Date? {
-        successfulRequests[packet]
-    }
-
-    func failureReasonFor(packet: UInt16) -> Error? {
-        unsuccessfulRequests[packet]
-    }
-
     mutating func updateResultsForTimeout() {
-        let resultKeys = results.keys
-        let timeoutRequests = successfulRequests.filter { !resultKeys.contains($0.key) }
-        for request in timeoutRequests {
-            results.updateValue(.failure(PingSessionError.timeout), forKey: request.key)
+        for key in requests.keys {
+            guard case .sent = requests[key] else { continue }
+            requests.updateValue(.failed(PingSessionError.timeout), forKey: key)
         }
     }
 }

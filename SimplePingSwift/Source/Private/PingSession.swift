@@ -102,17 +102,17 @@ extension PingSession: SimplePingDelegate {
     }
 
     func simplePing(_ pinger: SimplePing, didSendPacket packet: Data, sequenceNumber: UInt16) {
-        requestManager.addSent(request: .success(Date()), for: sequenceNumber)
+        requestManager.handleSent(request: .success(Date()), for: sequenceNumber)
         handler?(.didSendPacketTo(host: host))
     }
 
     func simplePing(_ pinger: SimplePing, didFailToSendPacket packet: Data, sequenceNumber: UInt16, error: any Error) {
-        requestManager.addSent(request: .failure(error), for: sequenceNumber)
+        requestManager.handleSent(request: .failure(error), for: sequenceNumber)
         handler?(.didFailToSendPacketTo(host: host, error: error))
     }
 
     func simplePing(_ pinger: SimplePing, didReceivePingResponsePacket packet: Data, sequenceNumber: UInt16) {
-        guard let elapsed = requestManager.handleReceivedResponse(at: Date(), for: sequenceNumber) else { return }
+        guard let elapsed = requestManager.handleReceived(responseAt: Date(), for: sequenceNumber) else { return }
         handler?(.didReceiveResponseFrom(host: host, response: .success(elapsed)))
     }
 }

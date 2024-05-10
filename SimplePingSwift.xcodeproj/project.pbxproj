@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		990F15F72BED237100FB6F2E /* PingRequestStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990F15F62BED237100FB6F2E /* PingRequestStatus.swift */; };
+		990F15F92BED285500FB6F2E /* PingConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990F15F82BED285500FB6F2E /* PingConfigurationTests.swift */; };
 		9914A6D32BD13942009EDC23 /* SimplePingSwift.docc in Sources */ = {isa = PBXBuildFile; fileRef = 9914A6D22BD13942009EDC23 /* SimplePingSwift.docc */; };
 		9914A6D92BD13943009EDC23 /* SimplePingSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9914A6CE2BD13942009EDC23 /* SimplePingSwift.framework */; };
 		9914A6DF2BD13943009EDC23 /* SimplePingSwift.h in Headers */ = {isa = PBXBuildFile; fileRef = 9914A6D12BD13942009EDC23 /* SimplePingSwift.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -23,6 +25,7 @@
 		99C3552E2BEBA4B700922538 /* Timer+Nullify.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C3552D2BEBA4B700922538 /* Timer+Nullify.swift */; };
 		99C355302BEBD4F500922538 /* PingRequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C3552F2BEBD4F500922538 /* PingRequestManager.swift */; };
 		99C355322BEBD53400922538 /* PingSessionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C355312BEBD53400922538 /* PingSessionError.swift */; };
+		99FE72D72BEE1088005B22D5 /* PingRequestManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FE72D62BEE1088005B22D5 /* PingRequestManagerTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +39,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		990F15F62BED237100FB6F2E /* PingRequestStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingRequestStatus.swift; sourceTree = "<group>"; };
+		990F15F82BED285500FB6F2E /* PingConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingConfigurationTests.swift; sourceTree = "<group>"; };
 		9914A6CE2BD13942009EDC23 /* SimplePingSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SimplePingSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9914A6D12BD13942009EDC23 /* SimplePingSwift.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SimplePingSwift.h; sourceTree = "<group>"; };
 		9914A6D22BD13942009EDC23 /* SimplePingSwift.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = SimplePingSwift.docc; sourceTree = "<group>"; };
@@ -54,6 +59,7 @@
 		99C3552D2BEBA4B700922538 /* Timer+Nullify.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Timer+Nullify.swift"; sourceTree = "<group>"; };
 		99C3552F2BEBD4F500922538 /* PingRequestManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingRequestManager.swift; sourceTree = "<group>"; };
 		99C355312BEBD53400922538 /* PingSessionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingSessionError.swift; sourceTree = "<group>"; };
+		99FE72D62BEE1088005B22D5 /* PingRequestManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingRequestManagerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +116,8 @@
 				9914A6FD2BD15E1B009EDC23 /* SimplePingAccessTests.swift */,
 				9984B7FC2BDA6047004A3820 /* PingSessionTests.swift */,
 				9984B8032BDA64D4004A3820 /* SimplePingPingManagerTests.swift */,
+				990F15F82BED285500FB6F2E /* PingConfigurationTests.swift */,
+				99FE72D62BEE1088005B22D5 /* PingRequestManagerTests.swift */,
 			);
 			path = SimplePingSwiftTests;
 			sourceTree = "<group>";
@@ -120,10 +128,11 @@
 				9914A6F02BD146C6009EDC23 /* SimplePing.h */,
 				9914A6F12BD146C6009EDC23 /* SimplePing.m */,
 				9984B7FA2BDA5FE0004A3820 /* PingSession.swift */,
-				99C355312BEBD53400922538 /* PingSessionError.swift */,
 				9984B8012BDA6371004A3820 /* SimplePingPingManager.swift */,
-				99C3552D2BEBA4B700922538 /* Timer+Nullify.swift */,
+				99C355312BEBD53400922538 /* PingSessionError.swift */,
 				99C3552F2BEBD4F500922538 /* PingRequestManager.swift */,
+				990F15F62BED237100FB6F2E /* PingRequestStatus.swift */,
+				99C3552D2BEBA4B700922538 /* Timer+Nullify.swift */,
 			);
 			path = Private;
 			sourceTree = "<group>";
@@ -268,6 +277,7 @@
 				9914A6F32BD146C6009EDC23 /* SimplePing.m in Sources */,
 				99C355302BEBD4F500922538 /* PingRequestManager.swift in Sources */,
 				99C3552E2BEBA4B700922538 /* Timer+Nullify.swift in Sources */,
+				990F15F72BED237100FB6F2E /* PingRequestStatus.swift in Sources */,
 				9984B8082BDA6938004A3820 /* PingResult.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -276,6 +286,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				99FE72D72BEE1088005B22D5 /* PingRequestManagerTests.swift in Sources */,
+				990F15F92BED285500FB6F2E /* PingConfigurationTests.swift in Sources */,
 				9984B7FD2BDA6047004A3820 /* PingSessionTests.swift in Sources */,
 				9914A6FE2BD15E1B009EDC23 /* SimplePingAccessTests.swift in Sources */,
 				9984B8042BDA64D4004A3820 /* SimplePingPingManagerTests.swift in Sources */,
