@@ -39,7 +39,7 @@ class PingSession: NSObject {
 
     func start(eventHandler: @escaping ((PingSessionResponse) -> Void)) {
         handler = eventHandler
-        requestManager = PingRequestManager(maxRequests: config.count, callBack: pingRequestManagerCallBackHandler)
+        requestManager = PingRequestManager(requestCountHandler: pingRequestManagerRequestCountHandler(_:))
         pinger = SimplePing(hostName: host)
         pinger?.delegate = self
         pinger?.start()
@@ -69,16 +69,11 @@ class PingSession: NSObject {
         timeoutTimer = timer
     }
 
-    private func pingRequestManagerCallBackHandler(_ callBack: PingRequestManagerCallBackType) {
-        if case .count(let count) = callBack {
-            if count == 1 {
-                setTimeoutTimer()
-            } else if count == config.count {
-                pingTimer.nullify()
-            }
-        } else if case .results(let dictionary) = callBack {
-            let result = PingResult(host: host, responses: dictionary)
-            handler?(.didFinishPinging(host: host, result: result))
+    private func pingRequestManagerRequestCountHandler(_ count: Int) {
+        if count == 1 {
+            setTimeoutTimer()
+        } else if count == config.count {
+            pingTimer.nullify()
         }
     }
 
@@ -117,5 +112,8 @@ extension PingSession: SimplePingDelegate {
     func simplePing(_ pinger: SimplePing, didReceivePingResponsePacket packet: Data, sequenceNumber: UInt16) {
         guard let elapsed = requestManager.handleReceived(responseAt: Date(), for: sequenceNumber) else { return }
         handler?(.didReceiveResponseFrom(host: host, response: .success(elapsed)))
+        if requestManager.results.count == config.count {
+            stopAndNotifyResults()
+        }
     }
 }

@@ -9,7 +9,7 @@ import Foundation
 
 public class SimplePingPingManager: PingManager {
 
-    private var session: PingSession?
+    private var sessions: [String: PingSession] = [:]
     public var delegate: (any PingManagerDelegate)?
 
     init(delegate: PingManagerDelegate? = nil) {
@@ -22,7 +22,13 @@ public class SimplePingPingManager: PingManager {
             guard let self else { return }
             self.handle(response)
         }
-        self.session = session
+        self.sessions.updateValue(session, forKey: host)
+    }
+
+    public func ping(hosts: [String]) {
+        for host in hosts {
+            ping(host: host, configuration: .default)
+        }
     }
 
     private func handle(_ response: PingSessionResponse) {

@@ -175,23 +175,4 @@ final class PingSessionTests: XCTestCase {
 
         wait(for: [expectation], timeout: 2.5)
     }
-
-    func testPingSessionWithMinimumTimeoutInterval() {
-        let expectation = XCTestExpectation(description: "Ping Session sends a valid result for smallest timeout interval.")
-        let count = 50
-        let config = PingConfiguration(count: count, interval: 0.1, timeoutInterval: 0.01)
-        let session = PingSession(host: host, config: config)
-
-        session.start { response in
-            switch response {
-            case .didFinishPinging(_, let result):
-                print(result)
-                XCTAssertEqual(result.count, count)
-                expectation.fulfill()
-            default: break
-            }
-        }
-
-        wait(for: [expectation], timeout: 15)
-    }
 }

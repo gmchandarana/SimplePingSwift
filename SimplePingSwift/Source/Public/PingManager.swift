@@ -17,4 +17,5 @@ public protocol PingManagerDelegate {
 public protocol PingManager {
     var delegate: PingManagerDelegate? { get set }
     func ping(host: String, configuration: PingConfiguration)
+    func ping(hosts: [String])
 }

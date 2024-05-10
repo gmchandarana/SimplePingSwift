@@ -7,22 +7,9 @@
 
 import Foundation
 
-enum PingRequestManagerCallBackType {
-    case count(Int)
-    case results([UInt16: Result<TimeInterval, Error>])
-}
-
 struct PingRequestManager {
 
-    let maxRequests: Int
-
-    private var requests = [UInt16: PingRequestStatus]() {
-        didSet {
-            guard requests.count == maxRequests else { return }
-            guard requests.values.allSatisfy ({ if case .sent = $0 { false } else { true }}) else { return }
-            callBack(.results(results))
-        }
-    }
+    private var requests = [UInt16: PingRequestStatus]()
 
     var results: [UInt16: Result<TimeInterval, Error>] {
         requests.reduce(into: [UInt16: Result<TimeInterval, Error>]()) { res, next in
@@ -31,16 +18,15 @@ struct PingRequestManager {
         }
     }
 
-    private var callBack: (PingRequestManagerCallBackType) -> Void
+    private var requestCountHandler: (Int) -> Void
 
-    init(maxRequests: Int, callBack: @escaping ((PingRequestManagerCallBackType) -> Void)) {
-        self.maxRequests = maxRequests
-        self.callBack = callBack
+    init(requestCountHandler: @escaping ((Int) -> Void)) {
+        self.requestCountHandler = requestCountHandler
     }
 
     mutating func handleSent(request: Result<Date, Error>, for sequenceNumber: UInt16) {
         requests.updateValue(PingRequestStatus(request: request), forKey: sequenceNumber)
-        callBack(.count(requests.count))
+        requestCountHandler(requests.count)
     }
 
     @discardableResult

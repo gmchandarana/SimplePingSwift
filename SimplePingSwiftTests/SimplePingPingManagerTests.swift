@@ -110,6 +110,7 @@ private struct MockPingManagerDelegate: PingManagerDelegate {
     }
 
     func didReceiveResponseFrom(host: String, response: Result<TimeInterval, any Error>) {
+        print("Got \(response) from \(host)")
         guard expectingErroredResponse == true else {
             didReceiveResponseExpectation?.fulfill()
             return
@@ -122,6 +123,7 @@ private struct MockPingManagerDelegate: PingManagerDelegate {
     }
 
     func didFinishPinging(host: String, result: PingResult) {
+        print(result)
         if let expectedPingCount {
             XCTAssertEqual(expectedPingCount, result.count)
         }
