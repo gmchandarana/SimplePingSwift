@@ -86,6 +86,57 @@ final class SimplePingPingManagerTests: XCTestCase {
         manager.ping(host: host, configuration: .init(count: 1, timeoutInterval: 2))
         wait(for: [expectation], timeout: 5)
     }
+
+    func testCanPingMultipleHosts() {
+        let expectation = XCTestExpectation(description: "PingManager can ping multiple hosts.")
+        let hosts = ["google.com", "facebook.com", "yahoo.co.jp", "node.org", "amazon.in", "x.com"]
+        expectation.expectedFulfillmentCount = hosts.count
+
+        var delegate = MockPingManagerDelegate()
+        delegate.didReceiveResultExpectation = expectation
+
+        manager.delegate = delegate
+        manager.ping(hosts: hosts)
+        wait(for: [expectation], timeout: 5)
+    }
+
+    func testMultipleInvalidHosts() {
+        let expectation = XCTestExpectation(description: "PingManager fails to ping an invalid host.")
+        let hosts = ["g124oogle.com", "faceboo)19k.com", "yah_oo1..co.jp", "ndone12ode.org", "amazon.co.uk.in", "x.com.in.co.jp"]
+        expectation.expectedFulfillmentCount = hosts.count
+
+        var delegate = MockPingManagerDelegate()
+        delegate.didFailToStartPingingExpectation = expectation
+
+        manager.delegate = delegate
+        manager.ping(hosts: hosts)
+        wait(for: [expectation], timeout: 5)
+    }
+
+    func testMixHosts() {
+        let invalidExpectation = XCTestExpectation(description: "PingManager fails to ping an invalid host.")
+        let validExpectation = XCTestExpectation(description: "PingManager pings a valid host.")
+
+        let validHosts = ["google.com", "facebook.com"]
+        let invalidHosts = ["yah_oo1..co.jp", "ndone12ode.org", "amazon.co.uk.in", "x.com.in.co.jp"]
+
+        let resultExpectation = XCTestExpectation(description: "PingManager should send a result.")
+        resultExpectation.expectedFulfillmentCount = validHosts.count
+
+        validExpectation.expectedFulfillmentCount = validHosts.count
+        invalidExpectation.expectedFulfillmentCount = invalidHosts.count
+
+        var delegate = MockPingManagerDelegate()
+        delegate.didStartPingingExpectation = validExpectation
+        delegate.didFailToStartPingingExpectation = invalidExpectation
+        delegate.didReceiveResultExpectation = resultExpectation
+        delegate.expectedPingCount = 5 // Default config
+
+
+        manager.delegate = delegate
+        manager.ping(hosts: validHosts + invalidHosts)
+        wait(for: [validExpectation, invalidExpectation, resultExpectation], timeout: 10)
+    }
 }
 
 private struct MockPingManagerDelegate: PingManagerDelegate {
@@ -110,7 +161,6 @@ private struct MockPingManagerDelegate: PingManagerDelegate {
     }
 
     func didReceiveResponseFrom(host: String, response: Result<TimeInterval, any Error>) {
-        print("Got \(response) from \(host)")
         guard expectingErroredResponse == true else {
             didReceiveResponseExpectation?.fulfill()
             return
@@ -123,9 +173,9 @@ private struct MockPingManagerDelegate: PingManagerDelegate {
     }
 
     func didFinishPinging(host: String, result: PingResult) {
-        print(result)
         if let expectedPingCount {
             XCTAssertEqual(expectedPingCount, result.count)
+            print("Got the result - ", result)
         }
 
         if expectingTimeoutResult == true {
