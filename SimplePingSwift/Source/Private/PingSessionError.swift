@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum PingSessionError: LocalizedError, Equatable {
+public enum PingSessionError: LocalizedError, Equatable {
     case invalidHost
     case timeout
 }

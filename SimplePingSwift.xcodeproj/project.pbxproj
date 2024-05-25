@@ -15,6 +15,7 @@
 		9914A6F22BD146C6009EDC23 /* SimplePing.h in Headers */ = {isa = PBXBuildFile; fileRef = 9914A6F02BD146C6009EDC23 /* SimplePing.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		9914A6F32BD146C6009EDC23 /* SimplePing.m in Sources */ = {isa = PBXBuildFile; fileRef = 9914A6F12BD146C6009EDC23 /* SimplePing.m */; };
 		9914A6FE2BD15E1B009EDC23 /* SimplePingAccessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914A6FD2BD15E1B009EDC23 /* SimplePingAccessTests.swift */; };
+		99613B6B2C01F4EC00A081B0 /* Host.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99613B6A2C01F4EC00A081B0 /* Host.swift */; };
 		9984B7FB2BDA5FE0004A3820 /* PingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9984B7FA2BDA5FE0004A3820 /* PingSession.swift */; };
 		9984B7FD2BDA6047004A3820 /* PingSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9984B7FC2BDA6047004A3820 /* PingSessionTests.swift */; };
 		9984B8002BDA60FB004A3820 /* PingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9984B7FF2BDA60FB004A3820 /* PingManager.swift */; };
@@ -50,6 +51,7 @@
 		9914A6F12BD146C6009EDC23 /* SimplePing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SimplePing.m; sourceTree = "<group>"; };
 		9914A6FD2BD15E1B009EDC23 /* SimplePingAccessTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimplePingAccessTests.swift; sourceTree = "<group>"; };
 		9914A7002BD15EE7009EDC23 /* SimplePingSwift.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = SimplePingSwift.modulemap; sourceTree = "<group>"; };
+		99613B6A2C01F4EC00A081B0 /* Host.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Host.swift; sourceTree = "<group>"; };
 		9984B7FA2BDA5FE0004A3820 /* PingSession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PingSession.swift; sourceTree = "<group>"; };
 		9984B7FC2BDA6047004A3820 /* PingSessionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PingSessionTests.swift; sourceTree = "<group>"; };
 		9984B7FF2BDA60FB004A3820 /* PingManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PingManager.swift; sourceTree = "<group>"; };
@@ -131,7 +133,6 @@
 				9914A6F02BD146C6009EDC23 /* SimplePing.h */,
 				9914A6F12BD146C6009EDC23 /* SimplePing.m */,
 				9984B7FA2BDA5FE0004A3820 /* PingSession.swift */,
-				9984B8012BDA6371004A3820 /* SimplePingPingManager.swift */,
 				99C355312BEBD53400922538 /* PingSessionError.swift */,
 				99C3552F2BEBD4F500922538 /* PingRequestManager.swift */,
 				990F15F62BED237100FB6F2E /* PingRequestStatus.swift */,
@@ -153,8 +154,10 @@
 			isa = PBXGroup;
 			children = (
 				9984B7FF2BDA60FB004A3820 /* PingManager.swift */,
+				9984B8012BDA6371004A3820 /* SimplePingPingManager.swift */,
 				9984B8052BDA6925004A3820 /* PingConfiguration.swift */,
 				9984B8072BDA6938004A3820 /* PingResult.swift */,
+				99613B6A2C01F4EC00A081B0 /* Host.swift */,
 			);
 			path = Public;
 			sourceTree = "<group>";
@@ -274,6 +277,7 @@
 				9984B7FB2BDA5FE0004A3820 /* PingSession.swift in Sources */,
 				99C355322BEBD53400922538 /* PingSessionError.swift in Sources */,
 				9984B8022BDA6371004A3820 /* SimplePingPingManager.swift in Sources */,
+				99613B6B2C01F4EC00A081B0 /* Host.swift in Sources */,
 				9984B8062BDA6925004A3820 /* PingConfiguration.swift in Sources */,
 				9984B8002BDA60FB004A3820 /* PingManager.swift in Sources */,
 				9914A6D32BD13942009EDC23 /* SimplePingSwift.docc in Sources */,
@@ -465,7 +469,7 @@
 				MODULEMAP_PRIVATE_FILE = "$(SRCROOT)/SimplePingSwift/SimplePingSwift.modulemap";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = com.swiftSimplePing.framework.SimplePingSwift;
+				PRODUCT_BUNDLE_IDENTIFIER = com.SimplePingSwift.framework;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = auto;
 				SKIP_INSTALL = YES;
@@ -512,7 +516,7 @@
 				MODULEMAP_PRIVATE_FILE = "$(SRCROOT)/SimplePingSwift/SimplePingSwift.modulemap";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = com.swiftSimplePing.framework.SimplePingSwift;
+				PRODUCT_BUNDLE_IDENTIFIER = com.SimplePingSwift.framework;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = auto;
 				SKIP_INSTALL = YES;

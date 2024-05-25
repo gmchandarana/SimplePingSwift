@@ -8,16 +8,16 @@
 import Foundation
 
 public struct PingResult {
-    let host: String
-    let count: Int
-    let average: Double
-    let success: Double
-    let responses: [Result<TimeInterval, Error>]
+    public let host: String
+    public let count: Int
+    public let average: Double
+    public let success: Double
+    public let responses: [Result<TimeInterval, Error>]
 }
 
 extension PingResult {
 
-    init(host: String, responses: [UInt16: Result<TimeInterval, Error>]) {
+    public init(host: String, responses: [UInt16: Result<TimeInterval, Error>]) {
         self.host = host
         self.count = responses.count
         self.responses = responses.map { $0.value }
@@ -35,5 +35,20 @@ extension PingResult {
 extension PingResult: CustomStringConvertible {
     public var description: String {
         "PingResult(host: \(host), count: \(count), average: \(average), success: \(success), responses: Array of Result<TimeInterval, Error>"
+    }
+}
+
+extension PingResult: Equatable {
+    public static func == (lhs: PingResult, rhs: PingResult) -> Bool {
+        lhs.host == rhs.host && lhs.count == rhs.count && lhs.average == rhs.average && lhs.success == rhs.success
+    }
+}
+
+extension PingResult: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(host)
+        hasher.combine(count)
+        hasher.combine(average)
+        hasher.combine(success)
     }
 }

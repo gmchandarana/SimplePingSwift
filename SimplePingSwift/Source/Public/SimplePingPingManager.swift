@@ -12,22 +12,22 @@ public class SimplePingPingManager: PingManager {
     private var sessions: [String: PingSession] = [:]
     public var delegate: (any PingManagerDelegate)?
 
-    init(delegate: PingManagerDelegate? = nil) {
+    public init(delegate: PingManagerDelegate? = nil) {
         self.delegate = delegate
     }
 
-    public func ping(host: String, configuration: PingConfiguration) {
-        let session = PingSession(host: host, config: configuration)
+    public func ping(host: Host) {
+        let session = PingSession(host: host.name, config: host.config)
         session.start { [weak self] response in
             guard let self else { return }
             self.handle(response)
         }
-        self.sessions.updateValue(session, forKey: host)
+        self.sessions.updateValue(session, forKey: host.name)
     }
 
-    public func ping(hosts: [String]) {
+    public func ping(hosts: Set<Host>) {
         for host in hosts {
-            ping(host: host, configuration: .default)
+            ping(host: host)
         }
     }
 
