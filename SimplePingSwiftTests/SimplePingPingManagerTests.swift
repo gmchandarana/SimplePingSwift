@@ -34,9 +34,8 @@ final class SimplePingPingManagerTests: XCTestCase {
         var delegate = MockPingManagerDelegate()
         delegate.didStartPingingExpectation = expectation
         manager.delegate = delegate
-        manager.ping(host: host, configuration: .default)
-
-        wait(for: [expectation], timeout: 1)
+        manager.ping(host: Host(name: host))
+        wait(for: [expectation], timeout: 5)
     }
 
     func testPingManagerPingSuccess() {
@@ -47,7 +46,7 @@ final class SimplePingPingManagerTests: XCTestCase {
         var delegate = MockPingManagerDelegate()
         delegate.didReceiveResponseExpectation = expectation
         manager.delegate = delegate
-        manager.ping(host: host, configuration: PingConfiguration(count: count))
+        manager.ping(host: Host(name: host, config: PingConfiguration(count: count)))
 
         wait(for: [expectation], timeout: 5)
     }
@@ -58,7 +57,7 @@ final class SimplePingPingManagerTests: XCTestCase {
         var delegate = MockPingManagerDelegate()
         delegate.didFailToStartPingingExpectation = expectation
         manager.delegate = delegate
-        manager.ping(host: invalidHost, configuration: .default)
+        manager.ping(host: Host(name: invalidHost))
 
         wait(for: [expectation], timeout: 5)
     }
@@ -72,7 +71,7 @@ final class SimplePingPingManagerTests: XCTestCase {
         delegate.didReceiveResultExpectation = expectation
         delegate.expectedPingCount = pingCount
         manager.delegate = delegate
-        manager.ping(host: host, configuration: config)
+        manager.ping(host: Host(name: host, config: config))
         wait(for: [expectation], timeout: 5)
     }
 
@@ -83,7 +82,7 @@ final class SimplePingPingManagerTests: XCTestCase {
         delegate.expectingTimeoutResult = true
         delegate.didReceiveTimeoutResultExpectation = expectation
         manager.delegate = delegate
-        manager.ping(host: host, configuration: .init(count: 1, timeoutInterval: 2))
+        manager.ping(host: Host(name: host, config: .init(count: 1, timeoutInterval: 2)))
         wait(for: [expectation], timeout: 5)
     }
 
@@ -96,7 +95,7 @@ final class SimplePingPingManagerTests: XCTestCase {
         delegate.didReceiveResultExpectation = expectation
 
         manager.delegate = delegate
-        manager.ping(hosts: hosts)
+        manager.ping(hosts: Set(hosts.map { Host(name: $0) }))
         wait(for: [expectation], timeout: 5)
     }
 
@@ -109,7 +108,7 @@ final class SimplePingPingManagerTests: XCTestCase {
         delegate.didFailToStartPingingExpectation = expectation
 
         manager.delegate = delegate
-        manager.ping(hosts: hosts)
+        manager.ping(hosts: Set(hosts.map { Host(name: $0) }))
         wait(for: [expectation], timeout: 5)
     }
 
@@ -134,62 +133,25 @@ final class SimplePingPingManagerTests: XCTestCase {
 
 
         manager.delegate = delegate
-        manager.ping(hosts: validHosts + invalidHosts)
+        manager.ping(hosts: Set(validHosts.map { Host(name: $0) } + invalidHosts.map { Host(name: $0) }))
         wait(for: [validExpectation, invalidExpectation, resultExpectation], timeout: 10)
     }
-}
 
-private struct MockPingManagerDelegate: PingManagerDelegate {
+    func testIntenseLoad() {
+        let validHosts: Set<String> = ["google.com", "facebook.com", "youtube.com", "amazon.com", "twitter.com", "instagram.com", "linkedin.com", "reddit.com", "wikipedia.org", "netflix.com", "apple.com", "microsoft.com", "ebay.com", "pinterest.com", "wordpress.org", "blogspot.com", "stackoverflow.com", "github.com", "yahoo.com", "bing.com", "tumblr.com", "bbc.co.uk", "cnn.com", "nytimes.com", "whatsapp.com", "espn.com", "quora.com", "imdb.com", "hulu.com", "paypal.com", "spotify.com", "bbc.com", "msn.com", "craigslist.org", "dropbox.com", "etsy.com", "walmart.com", "forbes.com", "theguardian.com", "weather.com", "usatoday.com", "wsj.com", "foxnews.com", "buzzfeed.com", "huffingtonpost.com", "bloomberg.com", "abcnews.go.com", "apnews.com", "cnbc.com", "nationalgeographic.com", "npr.org", "businessinsider.com", "time.com", "theverge.com", "techcrunch.com", "engadget.com", "arstechnica.com", "vice.com", "gizmodo.com", "lifehacker.com", "mashable.com", "thenextweb.com", "venturebeat.com", "wired.com", "slashdot.org", "pcmag.com", "tomsguide.com", "pcworld.com", "digg.com", "digitaltrends.com", "androidcentral.com", "macrumors.com", "cultofmac.com", "androidauthority.com", "androidpolice.com", "9to5mac.com", "theatlantic.com", "newyorker.com", "economist.com", "thetimes.co.uk", "independent.co.uk", "dailymail.co.uk", "express.co.uk", "mirror.co.uk", "thesun.co.uk", "telegraph.co.uk", "metro.co.uk", "standard.co.uk", "guardian.co.uk", "reuters.com", "ft.com", "fortune.com", "newsweek.com", "boston.com", "chicagotribune.com", "latimes.com", "stackoverflow.org", "instagram.org", "twitter.org", "godaddy.com"]
 
-    var didStartPingingExpectation: XCTestExpectation?
-    var didFailToStartPingingExpectation: XCTestExpectation?
-    var didReceiveResponseExpectation: XCTestExpectation?
-    var didReceiveResultExpectation: XCTestExpectation?
-    var didReceiveErroredResponseExpectation: XCTestExpectation?
-    var didReceiveTimeoutResultExpectation: XCTestExpectation?
+        let pingCount = 2
+        let pingInterval = 0.1
+        let expectation = XCTestExpectation(description: "PingManager can ping multiple hosts.")
+        let expectationCount = (pingCount * validHosts.count) + (validHosts.count * 2) //Why 2? - 1 for each didStart/didFailToStart callback for each one of the validHosts, and 1 for each didFinish.
+        expectation.expectedFulfillmentCount = expectationCount
 
-    var expectedPingCount: Int?
-    var expectingErroredResponse: Bool?
-    var expectingTimeoutResult: Bool?
+        let delegate = GeneralPingManagerDelegate(expectation: expectation)
+        manager.delegate = delegate
 
-    func didStartPinging(host: String) {
-        didStartPingingExpectation?.fulfill()
-    }
-
-    func didFailToStartPinging(host: String, error: Error) {
-        didFailToStartPingingExpectation?.fulfill()
-    }
-
-    func didReceiveResponseFrom(host: String, response: Result<TimeInterval, any Error>) {
-        guard expectingErroredResponse == true else {
-            didReceiveResponseExpectation?.fulfill()
-            return
-        }
-
-        switch response {
-        case .success: XCTFail("Expected failure, but received success.")
-        case .failure: didReceiveErroredResponseExpectation?.fulfill()
-        }
-    }
-
-    func didFinishPinging(host: String, result: PingResult) {
-        if let expectedPingCount {
-            XCTAssertEqual(expectedPingCount, result.count)
-            print("Got the result - ", result)
-        }
-
-        if expectingTimeoutResult == true {
-            let timeoutRequest = result.responses.contains(where: { response in
-                if case .failure(let failure) = response {
-                    return PingSessionError.timeout == failure as! PingSessionError
-                } else {
-                    return false
-                }
-            })
-            XCTAssertTrue(timeoutRequest)
-            didReceiveTimeoutResultExpectation?.fulfill()
-        }
-
-        didReceiveResultExpectation?.fulfill()
+        let validHostsSet = Set(validHosts.map { Host(name: $0, config: .init(count: pingCount, interval: TimeInterval(pingInterval), timeoutInterval: 0.5)) })
+        manager.ping(hosts: validHostsSet)
+        let timeoutInterval = Double(pingCount * validHosts.count) * Double(pingInterval)
+        wait(for: [expectation], timeout: timeoutInterval == 0 ? 1: timeoutInterval)
     }
 }

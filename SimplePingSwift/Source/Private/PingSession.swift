@@ -27,10 +27,38 @@ class PingSession: NSObject {
 
     private var pinger: SimplePing?
     private var handler: ((PingSessionResponse) -> Void)?
-    private weak var pingTimer: Timer?
-    private weak var timeoutTimer: Timer?
+    private var _requestManager: PingRequestManager!
+    private var _timeoutTimers: [UInt16: Timer?] = [:]
+    private weak var _pingTimer: Timer?
 
-    private var requestManager: PingRequestManager!
+    private var requestManager: PingRequestManager! {
+        get {
+            serialQueue.sync { _requestManager }
+        }
+        set {
+            serialQueue.async { [weak self] in self?._requestManager = newValue }
+        }
+    }
+
+    private var timeoutTimers: [UInt16: Timer?] {
+        get {
+            serialQueue.sync { _timeoutTimers }
+        }
+        set {
+            serialQueue.async { [weak self] in self?._timeoutTimers = newValue }
+        }
+    }
+
+    private weak var pingTimer: Timer? {
+        get {
+            serialQueue.sync { _pingTimer }
+        }
+        set {
+            serialQueue.async { [weak self] in self?._pingTimer = newValue }
+        }
+    }
+
+    private let serialQueue = DispatchQueue(label: "com.pingSession.serial")
 
     init(host: String, config: PingConfiguration = .default) {
         self.host = host
@@ -39,7 +67,7 @@ class PingSession: NSObject {
 
     func start(eventHandler: @escaping ((PingSessionResponse) -> Void)) {
         handler = eventHandler
-        requestManager = PingRequestManager(requestCountHandler: pingRequestManagerRequestCountHandler(_:))
+        requestManager = PingRequestManager(maxCount: config.count)
         pinger = SimplePing(hostName: host)
         pinger?.delegate = self
         pinger?.start()
@@ -52,39 +80,36 @@ class PingSession: NSObject {
     private func setPingTimer() {
         let timer = Timer.scheduledTimer(withTimeInterval: config.interval, repeats: true) { [weak self] timer in
             guard let self else { return timer.invalidate() }
-            self.pinger?.send(with: nil)
+            if requestManager.requests.count < config.count { pinger?.send(with: nil) }
         }
         pingTimer = timer
     }
 
-    private func setTimeoutTimer() {
-        let totalTimeoutInterval = config.timeoutInterval * Double(config.count)
-        let totalSendingTime = config.interval * Double(config.count)
-        let minRequiredTime = max(totalTimeoutInterval, totalSendingTime)
-        
-        let timer = Timer.scheduledTimer(withTimeInterval: minRequiredTime, repeats: false) { [weak self] timer in
+    private func setTimeoutTimerForRequestWith(sequenceNumber: UInt16) {
+        let timer = Timer.scheduledTimer(withTimeInterval: config.timeoutInterval, repeats: false) { [weak self] timer in
             guard let self else { return timer.invalidate() }
-            stopAndNotifyResults(didTimeout: true)
+            timeoutTimers[sequenceNumber]?.nullify()
+            requestManager.handleReceived(response: .failure(PingSessionError.timeout), for: sequenceNumber)
+            handler?(.didReceiveResponseFrom(host: host, response: .failure(PingSessionError.timeout)))
+            if requestManager.hasReceivedAllResponses { stopAndNotifyResults() }
         }
-        timeoutTimer = timer
+        timeoutTimers.updateValue(timer, forKey: sequenceNumber)
     }
 
-    private func pingRequestManagerRequestCountHandler(_ count: Int) {
-        if count == 1 {
-            setTimeoutTimer()
-        } else if count == config.count {
-            pingTimer.nullify()
-        }
-    }
-
-    private func stopAndNotifyResults(didTimeout: Bool = false) {
+    private func stopAndNotifyResults() {
         pinger?.stop()
         pinger = nil
-        pingTimer.nullify()
-        timeoutTimer.nullify()
-        if didTimeout { requestManager.updateResultsForTimeout() }
+        invalidateTimers()
         let result = PingResult(host: host, responses: requestManager.results)
         handler?(.didFinishPinging(host: host, result: result))
+    }
+
+    private func invalidateTimers() {
+        pingTimer.nullify()
+        timeoutTimers.forEach {
+            $0.value?.invalidate()
+            timeoutTimers[$0.key] = nil
+        }
     }
 }
 
@@ -101,6 +126,7 @@ extension PingSession: SimplePingDelegate {
 
     func simplePing(_ pinger: SimplePing, didSendPacket packet: Data, sequenceNumber: UInt16) {
         requestManager.handleSent(request: .success(Date()), for: sequenceNumber)
+        setTimeoutTimerForRequestWith(sequenceNumber: sequenceNumber)
         handler?(.didSendPacketTo(host: host))
     }
 
@@ -110,10 +136,10 @@ extension PingSession: SimplePingDelegate {
     }
 
     func simplePing(_ pinger: SimplePing, didReceivePingResponsePacket packet: Data, sequenceNumber: UInt16) {
-        guard let elapsed = requestManager.handleReceived(responseAt: Date(), for: sequenceNumber) else { return }
-        handler?(.didReceiveResponseFrom(host: host, response: .success(elapsed)))
-        if requestManager.results.count == config.count {
-            stopAndNotifyResults()
+        timeoutTimers[sequenceNumber]?.nullify()
+        if let elapsed = requestManager.handleReceived(response: .success(Date()), for: sequenceNumber) {
+            handler?(.didReceiveResponseFrom(host: host, response: .success(elapsed)))
         }
+        if requestManager.hasReceivedAllResponses { stopAndNotifyResults() }
     }
 }

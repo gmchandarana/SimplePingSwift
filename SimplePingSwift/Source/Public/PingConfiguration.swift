@@ -12,14 +12,11 @@ public struct PingConfiguration: Equatable, Hashable {
     let interval: TimeInterval
     let timeoutInterval: TimeInterval
 
-    public init(count: Int = 5, interval: TimeInterval = 0.5, timeoutInterval: TimeInterval = 2) {
-        precondition(interval >= 0.1)
-        precondition(timeoutInterval >= 0.5)
-
+    public init(count: Int = 5, interval: TimeInterval = 0.5, timeoutInterval: TimeInterval = 1) {
         self.count = count
         self.interval = interval
         self.timeoutInterval = timeoutInterval
     }
 
-    public static let `default` = PingConfiguration(count: 5, interval: 0.5, timeoutInterval: 2)
+    public static let `default` = PingConfiguration(count: 5, interval: 0.5, timeoutInterval: 1)
 }

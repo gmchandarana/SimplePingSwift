@@ -21,15 +21,23 @@ extension PingResult {
         self.host = host
         self.count = responses.count
         self.responses = responses.map { $0.value }
-
+        
         let successfulResponses = self.responses.compactMap {
             if case let .success(timeInterval) = $0 { timeInterval } else { nil }
         }
 
-        self.average = successfulResponses.reduce(0, +)/Double(successfulResponses.count)
-        self.success = Double(successfulResponses.count)/Double(count)
-    }
+        if successfulResponses.count > 0 {
+            self.average = successfulResponses.reduce(0, +)/Double(successfulResponses.count)
+        } else {
+            self.average = 0
+        }
 
+        if count > 0 {
+            self.success = Double(successfulResponses.count)/Double(count)
+        } else {
+            self.success = 0
+        }
+    }
 }
 
 extension PingResult: CustomStringConvertible {

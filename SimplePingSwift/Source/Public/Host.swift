@@ -12,7 +12,7 @@ public struct Host: Hashable {
     let name: String
     let config: PingConfiguration
 
-    init(name: String, config: PingConfiguration = .default) {
+    public init(name: String, config: PingConfiguration = .default) {
         self.name = name
         self.config = config
     }

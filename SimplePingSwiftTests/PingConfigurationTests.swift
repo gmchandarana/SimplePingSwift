@@ -13,7 +13,7 @@ final class PingConfigurationTests: XCTestCase {
     var config: PingConfiguration?
 
     override func setUp() {
-        config = PingConfiguration(count: 10, interval: 0.1, timeoutInterval: 2)
+        config = PingConfiguration(count: 5, interval: 0.5, timeoutInterval: 1)
     }
 
     override func tearDown() {
@@ -28,7 +28,7 @@ final class PingConfigurationTests: XCTestCase {
         let defaultConfig = PingConfiguration()
         XCTAssertEqual(defaultConfig.count, 5)
         XCTAssertEqual(defaultConfig.interval, 0.5)
-        XCTAssertEqual(defaultConfig.timeoutInterval, 2)
+        XCTAssertEqual(defaultConfig.timeoutInterval, 1)
     }
 
     func testCustomInitialization() {

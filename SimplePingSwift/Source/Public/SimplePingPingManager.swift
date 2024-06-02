@@ -8,9 +8,18 @@
 import Foundation
 
 public class SimplePingPingManager: PingManager {
+    private var _sessions: [String: PingSession] = [:]
+    private var sessions: [String: PingSession] {
+        get {
+            serialQueue.sync { _sessions }
+        }
+        set {
+            serialQueue.async { [weak self] in self?._sessions = newValue }
+        }
+    }
 
-    private var sessions: [String: PingSession] = [:]
     public var delegate: (any PingManagerDelegate)?
+    private let serialQueue = DispatchQueue(label: "com.simpleping.queue")
 
     public init(delegate: PingManagerDelegate? = nil) {
         self.delegate = delegate
@@ -18,11 +27,11 @@ public class SimplePingPingManager: PingManager {
 
     public func ping(host: Host) {
         let session = PingSession(host: host.name, config: host.config)
+        sessions[host.name] = session
         session.start { [weak self] response in
             guard let self else { return }
-            self.handle(response)
+            handle(response)
         }
-        self.sessions.updateValue(session, forKey: host.name)
     }
 
     public func ping(hosts: Set<Host>) {
@@ -42,6 +51,7 @@ public class SimplePingPingManager: PingManager {
             delegate?.didReceiveResponseFrom(host: host, response: response)
         case .didFinishPinging(let host, let result):
             delegate?.didFinishPinging(host: host, result: result)
+            sessions.removeValue(forKey: host)
         }
     }
 }
