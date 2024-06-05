@@ -1,6 +1,6 @@
 # SimplePingSwift
 
-SimplePingSwift is a Swift framework for performing network ping operations. It provides an easy-to-use interface to ping single or multiple hosts and handles responses efficiently. The framework internally uses the [SimplePing]([url](https://developer.apple.com/library/archive/samplecode/SimplePing/Introduction/Intro.html)) Objective-C class for low-level ping operations.
+SimplePingSwift is a Swift framework for performing network ping operations. It provides an easy-to-use interface to ping single or multiple hosts and handles responses efficiently. The framework internally uses the [SimplePing]([https://developer.apple.com/library/archive/samplecode/SimplePing/Introduction/Intro.html]) Objective-C class for low-level ping operations.
 
 ## Features
 
