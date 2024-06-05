@@ -28,6 +28,7 @@
 		99C355322BEBD53400922538 /* PingSessionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C355312BEBD53400922538 /* PingSessionError.swift */; };
 		99CC7F8C2BFE15E200DD71BF /* PingRequestStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CC7F8B2BFE15E200DD71BF /* PingRequestStatusTests.swift */; };
 		99DBB8FF2C0CD6D800EBC478 /* MockPingManagerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DBB8FE2C0CD6D800EBC478 /* MockPingManagerDelegate.swift */; };
+		99EC862A2C0FAB6800748C4D /* PingManagerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99EC86292C0FAB6800748C4D /* PingManagerDelegate.swift */; };
 		99FE72D72BEE1088005B22D5 /* PingRequestManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FE72D62BEE1088005B22D5 /* PingRequestManagerTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -65,6 +66,7 @@
 		99C355312BEBD53400922538 /* PingSessionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingSessionError.swift; sourceTree = "<group>"; };
 		99CC7F8B2BFE15E200DD71BF /* PingRequestStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingRequestStatusTests.swift; sourceTree = "<group>"; };
 		99DBB8FE2C0CD6D800EBC478 /* MockPingManagerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockPingManagerDelegate.swift; sourceTree = "<group>"; };
+		99EC86292C0FAB6800748C4D /* PingManagerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingManagerDelegate.swift; sourceTree = "<group>"; };
 		99FE72D62BEE1088005B22D5 /* PingRequestManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingRequestManagerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -157,6 +159,7 @@
 			isa = PBXGroup;
 			children = (
 				9984B7FF2BDA60FB004A3820 /* PingManager.swift */,
+				99EC86292C0FAB6800748C4D /* PingManagerDelegate.swift */,
 				9984B8012BDA6371004A3820 /* SimplePingPingManager.swift */,
 				9984B8052BDA6925004A3820 /* PingConfiguration.swift */,
 				9984B8072BDA6938004A3820 /* PingResult.swift */,
@@ -285,6 +288,7 @@
 				9984B8002BDA60FB004A3820 /* PingManager.swift in Sources */,
 				9914A6D32BD13942009EDC23 /* SimplePingSwift.docc in Sources */,
 				9914A6F32BD146C6009EDC23 /* SimplePing.m in Sources */,
+				99EC862A2C0FAB6800748C4D /* PingManagerDelegate.swift in Sources */,
 				99C355302BEBD4F500922538 /* PingRequestManager.swift in Sources */,
 				99C3552E2BEBA4B700922538 /* Timer+Nullify.swift in Sources */,
 				990F15F72BED237100FB6F2E /* PingRequestStatus.swift in Sources */,

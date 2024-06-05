@@ -7,11 +7,16 @@
 
 import Foundation
 
+/// Represents a host to be pinged along with its configuration.
 public struct Host: Hashable {
 
     let name: String
     let config: PingConfiguration
 
+    /// Initializes a new host with a given name and configuration.
+    /// - Parameters:
+    ///   - name: The hostname or IP address to be pinged.
+    ///   - config: The configuration for the ping operation.
     public init(name: String, config: PingConfiguration = .default) {
         self.name = name
         self.config = config
