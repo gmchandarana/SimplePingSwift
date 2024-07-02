@@ -10,13 +10,13 @@ import Foundation
 /// Represents the configuration settings for a ping operation.
 public struct PingConfiguration: Equatable, Hashable {
     /// The number of ping attempts.
-    let count: Int
+    public let count: Int
 
     /// The interval between ping attempts in seconds.
-    let interval: TimeInterval
+    public let interval: TimeInterval
 
     /// The timeout interval for each ping attempt in seconds.
-    let timeoutInterval: TimeInterval
+    public let timeoutInterval: TimeInterval
 
     /// Initializes a new `PingConfiguration` with the specified settings.
     /// - Parameters:
