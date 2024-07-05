@@ -93,6 +93,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		99047A942C38B9E100C211ED /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				99C3552D2BEBA4B700922538 /* Timer+Nullify.swift */,
+				9957D2492C35574900665127 /* BackgroundWorker.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
 		9914A6C42BD13942009EDC23 = {
 			isa = PBXGroup;
 			children = (
@@ -115,6 +124,7 @@
 			isa = PBXGroup;
 			children = (
 				9914A7032BD17092009EDC23 /* Source */,
+				99047A942C38B9E100C211ED /* Utils */,
 				9914A6D12BD13942009EDC23 /* SimplePingSwift.h */,
 				9914A7002BD15EE7009EDC23 /* SimplePingSwift.modulemap */,
 				9914A6D22BD13942009EDC23 /* SimplePingSwift.docc */,
@@ -146,8 +156,6 @@
 				99C355312BEBD53400922538 /* PingSessionError.swift */,
 				99C3552F2BEBD4F500922538 /* PingRequestManager.swift */,
 				990F15F62BED237100FB6F2E /* PingRequestStatus.swift */,
-				99C3552D2BEBA4B700922538 /* Timer+Nullify.swift */,
-				9957D2492C35574900665127 /* BackgroundWorker.swift */,
 			);
 			path = Private;
 			sourceTree = "<group>";
