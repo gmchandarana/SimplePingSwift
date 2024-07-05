@@ -27,6 +27,7 @@ class PingSession: NSObject {
 
     private var pinger: SimplePing?
     private var handler: ((PingSessionResponse) -> Void)?
+    private let worker = BackgroundWorker()
     private var _requestManager: PingRequestManager!
     private var _timeoutTimers: [UInt16: Timer?] = [:]
     private weak var _pingTimer: Timer?
@@ -66,11 +67,14 @@ class PingSession: NSObject {
     }
 
     func start(eventHandler: @escaping ((PingSessionResponse) -> Void)) {
-        handler = eventHandler
-        requestManager = PingRequestManager(maxCount: config.count)
-        pinger = SimplePing(hostName: host)
-        pinger?.delegate = self
-        pinger?.start()
+        worker.start { [weak self] in
+            guard let self else { return }
+            handler = eventHandler
+            requestManager = PingRequestManager(maxCount: config.count)
+            pinger = SimplePing(hostName: host)
+            pinger?.delegate = self
+            pinger?.start()
+        }
     }
 
     func stop() {
@@ -99,6 +103,7 @@ class PingSession: NSObject {
     private func stopAndNotifyResults() {
         pinger?.stop()
         pinger = nil
+        worker.stop()
         invalidateTimers()
         let result = PingResult(host: host, responses: requestManager.results)
         handler?(.didFinishPinging(host: host, result: result))

@@ -10,23 +10,13 @@ import XCTest
 
 final class PingSessionTests: XCTestCase {
 
-    var session: PingSession!
     let host = "example.com"
     let invalidHost = "xa0com"
 
-    override func setUp() {
-        super.setUp()
-        session = PingSession(host: host)
-    }
-
-    override func tearDown() {
-        session = nil
-        super.tearDown()
-    }
-
     func testCanStartSessionWhenHostIsValid() {
+        let sesion = makeSUT()
         let expectation = XCTestExpectation(description: "Session should start pinging to a valid host.")
-        session.start { [weak self] response in
+        sesion.start { [weak self] response in
             guard let self else { return }
             switch response {
             case .didStartPinging(let host):
@@ -39,8 +29,7 @@ final class PingSessionTests: XCTestCase {
     }
 
     func testSessionFailsToStartWhenHostIsInvalid() {
-        session = PingSession(host: invalidHost)
-
+        let session = makeSUT(host: invalidHost)
         let expectation = XCTestExpectation(description: "Session should not start pinging to an invalid host.")
         session.start { [weak self] response in
             guard let self else { return }
@@ -57,9 +46,9 @@ final class PingSessionTests: XCTestCase {
 
     func testSessionSendsSpecifiedNumberOfRequests() {
         let count = 7
+        let session = makeSUT(config: .init(count: count))
         let expectation = XCTestExpectation(description: "Should receive exactly \(count) responses.")
         expectation.expectedFulfillmentCount = count
-        let session = PingSession(host: host, config: .init(count: count))
 
         session.start { handler in
             switch handler {
@@ -74,7 +63,7 @@ final class PingSessionTests: XCTestCase {
     func testSessionStopsSendingRequestsAfterSpecifiedNumberOfRequests() {
         let count = 8
         let expectation = XCTestExpectation(description: "Session should stop after \(count) requests.")
-        let session = PingSession(host: host, config: .init(count: count))
+        let session = makeSUT(config: .init(count: count))
 
         session.start { response in
             switch response {
@@ -92,7 +81,7 @@ final class PingSessionTests: XCTestCase {
         let count = 4
         let host = "127.0.0.0"
         let expectation = XCTestExpectation(description: "PingSession requests should time out when pinging unknown local IP.")
-        let session = PingSession(host: host, config: .init(count: count))
+        let session = makeSUT(host: host, config: .init(count: count))
         session.start { response in
             switch response {
             case .didFinishPinging(_, let result):
@@ -115,13 +104,13 @@ final class PingSessionTests: XCTestCase {
     func testSessionStaysActiveUntilTerminated() {
         let expectation = XCTestExpectation(description: "Session should stay active until stopped after 5 seconds.")
 
-        let config = PingConfiguration(count: 100, interval: 0.5, timeoutInterval: 1)
+        let config = PingConfiguration(count: 100, interval: 1, timeoutInterval: 1)
         let session = PingSession(host: host, config: config)
         session.start { [weak self] response in
             guard let self else { return }
             switch response {
             case .didStartPinging(let host):
-                DispatchQueue.global().asyncAfter(deadline: .now() + 5) {
+                DispatchQueue.global().asyncAfter(deadline: .now() + 1) {
                     XCTAssertEqual(self.host, host)
                     XCTAssertTrue(session.isActive)
                     expectation.fulfill()
@@ -130,11 +119,11 @@ final class PingSessionTests: XCTestCase {
             }
         }
 
-        wait(for: [expectation], timeout: 10) // 15 + 5 seconds buffer
+        wait(for: [expectation], timeout: 2)
     }
 
     func testEmptyHostInitialization() {
-        let session = PingSession(host: "")
+        let session = makeSUT(host: "")
         let expectation = XCTestExpectation(description: "Session should fail")
 
         session.start { response in
@@ -161,13 +150,17 @@ final class PingSessionTests: XCTestCase {
         session.start { response in
             switch response {
             case .didFinishPinging(_, let result):
-                guard result.count == stoppingAtCount else { return }
-                expectation.fulfill()
+                if result.count == stoppingAtCount {
+                    expectation.fulfill()
+                } else {
+                    XCTFail("Expected the result.count to be equal to stoppingAtCount.")
+                }
             case .didSendPacketTo:
                 if currentCount == stoppingAtCount {
                     session.stop()
+                } else {
+                    currentCount += 1
                 }
-                currentCount += 1
             default: break
             }
         }
@@ -178,7 +171,7 @@ final class PingSessionTests: XCTestCase {
     func testPingManagerRequestTimeOut() {
         let slowerHost = "yahoo.co.jp"
         let expectation = XCTestExpectation(description: "Some request should time out. This test depends on the host and speed of the network, so it is not reliable.")
-        let session = PingSession(host: slowerHost, config: .init(count: 50, interval: 0.1, timeoutInterval: 0.243))
+        let session = makeSUT(host: slowerHost, config: .init(count: 50, interval: 0.1, timeoutInterval: 0.2))
 
         session.start { response in
             switch response {
@@ -200,4 +193,14 @@ final class PingSessionTests: XCTestCase {
         }
         wait(for: [expectation], timeout: 5.5)
     }
+}
+
+extension PingSessionTests {
+
+    private func makeSUT(host: String = "example.com", config: PingConfiguration = .default) -> PingSession {
+        let session = PingSession(host: host, config: config)
+        trackMemoryLeaks(for: session)
+        return session
+    }
+
 }

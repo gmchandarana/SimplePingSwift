@@ -15,6 +15,8 @@
 		9914A6F22BD146C6009EDC23 /* SimplePing.h in Headers */ = {isa = PBXBuildFile; fileRef = 9914A6F02BD146C6009EDC23 /* SimplePing.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		9914A6F32BD146C6009EDC23 /* SimplePing.m in Sources */ = {isa = PBXBuildFile; fileRef = 9914A6F12BD146C6009EDC23 /* SimplePing.m */; };
 		9914A6FE2BD15E1B009EDC23 /* SimplePingAccessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9914A6FD2BD15E1B009EDC23 /* SimplePingAccessTests.swift */; };
+		9957D24A2C35574900665127 /* BackgroundWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9957D2492C35574900665127 /* BackgroundWorker.swift */; };
+		9957D24C2C355A4800665127 /* XCTestCase+MemoryLeak.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9957D24B2C355A4800665127 /* XCTestCase+MemoryLeak.swift */; };
 		99613B6B2C01F4EC00A081B0 /* Host.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99613B6A2C01F4EC00A081B0 /* Host.swift */; };
 		9984B7FB2BDA5FE0004A3820 /* PingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9984B7FA2BDA5FE0004A3820 /* PingSession.swift */; };
 		9984B7FD2BDA6047004A3820 /* PingSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9984B7FC2BDA6047004A3820 /* PingSessionTests.swift */; };
@@ -53,6 +55,8 @@
 		9914A6F12BD146C6009EDC23 /* SimplePing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SimplePing.m; sourceTree = "<group>"; };
 		9914A6FD2BD15E1B009EDC23 /* SimplePingAccessTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimplePingAccessTests.swift; sourceTree = "<group>"; };
 		9914A7002BD15EE7009EDC23 /* SimplePingSwift.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = SimplePingSwift.modulemap; sourceTree = "<group>"; };
+		9957D2492C35574900665127 /* BackgroundWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundWorker.swift; sourceTree = "<group>"; };
+		9957D24B2C355A4800665127 /* XCTestCase+MemoryLeak.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+MemoryLeak.swift"; sourceTree = "<group>"; };
 		99613B6A2C01F4EC00A081B0 /* Host.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Host.swift; sourceTree = "<group>"; };
 		9984B7FA2BDA5FE0004A3820 /* PingSession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PingSession.swift; sourceTree = "<group>"; };
 		9984B7FC2BDA6047004A3820 /* PingSessionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PingSessionTests.swift; sourceTree = "<group>"; };
@@ -128,6 +132,7 @@
 				99FE72D62BEE1088005B22D5 /* PingRequestManagerTests.swift */,
 				99CC7F8B2BFE15E200DD71BF /* PingRequestStatusTests.swift */,
 				99DBB8FE2C0CD6D800EBC478 /* MockPingManagerDelegate.swift */,
+				9957D24B2C355A4800665127 /* XCTestCase+MemoryLeak.swift */,
 			);
 			path = SimplePingSwiftTests;
 			sourceTree = "<group>";
@@ -142,6 +147,7 @@
 				99C3552F2BEBD4F500922538 /* PingRequestManager.swift */,
 				990F15F62BED237100FB6F2E /* PingRequestStatus.swift */,
 				99C3552D2BEBA4B700922538 /* Timer+Nullify.swift */,
+				9957D2492C35574900665127 /* BackgroundWorker.swift */,
 			);
 			path = Private;
 			sourceTree = "<group>";
@@ -287,6 +293,7 @@
 				9984B8062BDA6925004A3820 /* PingConfiguration.swift in Sources */,
 				9984B8002BDA60FB004A3820 /* PingManager.swift in Sources */,
 				9914A6D32BD13942009EDC23 /* SimplePingSwift.docc in Sources */,
+				9957D24A2C35574900665127 /* BackgroundWorker.swift in Sources */,
 				9914A6F32BD146C6009EDC23 /* SimplePing.m in Sources */,
 				99EC862A2C0FAB6800748C4D /* PingManagerDelegate.swift in Sources */,
 				99C355302BEBD4F500922538 /* PingRequestManager.swift in Sources */,
@@ -306,6 +313,7 @@
 				9984B7FD2BDA6047004A3820 /* PingSessionTests.swift in Sources */,
 				9914A6FE2BD15E1B009EDC23 /* SimplePingAccessTests.swift in Sources */,
 				9984B8042BDA64D4004A3820 /* SimplePingPingManagerTests.swift in Sources */,
+				9957D24C2C355A4800665127 /* XCTestCase+MemoryLeak.swift in Sources */,
 				99CC7F8C2BFE15E200DD71BF /* PingRequestStatusTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
