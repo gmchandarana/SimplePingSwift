@@ -109,4 +109,28 @@ final class PingRequestManagerTests: XCTestCase {
             XCTFail("Expected successful result with correct time interval")
         }
     }
+
+    func testConcurrentAccess() {
+        var manager = PingRequestManager(maxCount: 100)
+        let concurrentQueue = DispatchQueue.global(qos: .background)
+        let group = DispatchGroup()
+
+        for index in 0..<100 {
+            group.enter()
+            concurrentQueue.async {
+                let requestResult: Result<Date, Error> = .success(Date())
+                manager.handleSent(request: requestResult, for: UInt16(index))
+                group.leave()
+            }
+        }
+
+        for _ in 0..<100 {
+            group.enter()
+            concurrentQueue.async {
+                _ = manager.results
+                group.leave()
+            }
+        }
+        group.wait()
+    }
 }

@@ -10,7 +10,7 @@ import Foundation
 struct PingRequestManager {
 
     let maxCount: Int
-    private (set) var requests = [UInt16: PingRequestStatus]()
+    private (set) var requests = ThreadSafeDictionary<UInt16, PingRequestStatus>()
 
     var hasReceivedAllResponses: Bool {
         requests.count == maxCount && requests.values.allSatisfy { if case .sent = $0 { false } else { true } }
