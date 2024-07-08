@@ -9,8 +9,8 @@ import Foundation
 
 class BackgroundWorker: NSObject {
 
-    private var threadName: String? { thread?.name }
-    private var hasAnActiveThread: Bool { thread.isExecuting }
+    var threadName: String? { thread?.name }
+    var hasAnActiveThread: Bool { thread.isExecuting }
 
     private var thread: Thread!
     private var block: (() -> Void)!
