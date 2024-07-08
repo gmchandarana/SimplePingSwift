@@ -14,9 +14,10 @@ final class PingSessionTests: XCTestCase {
     let invalidHost = "xa0com"
 
     func testCanStartSessionWhenHostIsValid() {
-        let sesion = makeSUT()
+        let session = makeSUT()
         let expectation = XCTestExpectation(description: "Session should start pinging to a valid host.")
-        sesion.start { [weak self] response in
+        
+        session.start { [weak self] response in
             guard let self else { return }
             switch response {
             case .didStartPinging(let host):

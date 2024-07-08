@@ -10,28 +10,13 @@ import XCTest
 
 final class SimplePingPingManagerTests: XCTestCase {
 
-    var manager: PingManager!
     let host = "example.com"
     let invalidHost = "xa0com"
 
-    override func setUp() {
-        super.setUp()
-        manager = SimplePingPingManager()
-    }
-
-    override func tearDown() {
-        manager = nil
-        super.tearDown()
-    }
-
-    func testInitialization() {
-        XCTAssertNotNil(manager)
-    }
-
     func testPingManagerStartsPingingHost() {
         let expectation = XCTestExpectation(description: "The pingManager starts pinging \(host)")
-
         var delegate = MockPingManagerDelegate()
+        let manager = makeSUT(delegate)
         delegate.didStartPingingExpectation = expectation
         manager.delegate = delegate
         manager.ping(host: Host(name: host))
@@ -44,6 +29,7 @@ final class SimplePingPingManagerTests: XCTestCase {
         expectation.expectedFulfillmentCount = count
 
         var delegate = MockPingManagerDelegate()
+        let manager = makeSUT(delegate)
         delegate.didReceiveResponseExpectation = expectation
         manager.delegate = delegate
         manager.ping(host: Host(name: host, config: PingConfiguration(count: count)))
@@ -55,6 +41,7 @@ final class SimplePingPingManagerTests: XCTestCase {
         let expectation = XCTestExpectation(description: "The pingManager should fail.")
 
         var delegate = MockPingManagerDelegate()
+        let manager = makeSUT(delegate)
         delegate.didFailToStartPingingExpectation = expectation
         manager.delegate = delegate
         manager.ping(host: Host(name: invalidHost))
@@ -68,6 +55,7 @@ final class SimplePingPingManagerTests: XCTestCase {
         let pingCount = 8
         let config = PingConfiguration(count: pingCount)
         var delegate = MockPingManagerDelegate()
+        let manager = makeSUT(delegate)
         delegate.didReceiveResultExpectation = expectation
         delegate.expectedPingCount = pingCount
         manager.delegate = delegate
@@ -79,6 +67,7 @@ final class SimplePingPingManagerTests: XCTestCase {
         let host = "127.0.0.0"
         let expectation = XCTestExpectation(description: "PingManager requests should time out when pinging unknown local IP.")
         var delegate = MockPingManagerDelegate()
+        let manager = makeSUT(delegate)
         delegate.expectingTimeoutResult = true
         delegate.didReceiveTimeoutResultExpectation = expectation
         manager.delegate = delegate
@@ -92,6 +81,7 @@ final class SimplePingPingManagerTests: XCTestCase {
         expectation.expectedFulfillmentCount = hosts.count
 
         var delegate = MockPingManagerDelegate()
+        let manager = makeSUT(delegate)
         delegate.didReceiveResultExpectation = expectation
 
         manager.delegate = delegate
@@ -105,6 +95,7 @@ final class SimplePingPingManagerTests: XCTestCase {
         expectation.expectedFulfillmentCount = hosts.count
 
         var delegate = MockPingManagerDelegate()
+        let manager = makeSUT(delegate)
         delegate.didFailToStartPingingExpectation = expectation
 
         manager.delegate = delegate
@@ -126,6 +117,7 @@ final class SimplePingPingManagerTests: XCTestCase {
         invalidExpectation.expectedFulfillmentCount = invalidHosts.count
 
         var delegate = MockPingManagerDelegate()
+        let manager = makeSUT(delegate)
         delegate.didStartPingingExpectation = validExpectation
         delegate.didFailToStartPingingExpectation = invalidExpectation
         delegate.didReceiveResultExpectation = resultExpectation
@@ -147,11 +139,21 @@ final class SimplePingPingManagerTests: XCTestCase {
         expectation.expectedFulfillmentCount = expectationCount
 
         let delegate = GeneralPingManagerDelegate(expectation: expectation)
+        let manager = makeSUT(delegate)
         manager.delegate = delegate
 
         let validHostsSet = Set(validHosts.map { Host(name: $0, config: .init(count: pingCount, interval: TimeInterval(pingInterval), timeoutInterval: 0.5)) })
         manager.ping(hosts: validHostsSet)
         let timeoutInterval = Double(pingCount * validHosts.count) * Double(pingInterval)
         wait(for: [expectation], timeout: timeoutInterval == 0 ? 1: timeoutInterval)
+    }
+}
+
+extension SimplePingPingManagerTests {
+
+    private func makeSUT(_ delegate: PingManagerDelegate? = nil) -> SimplePingPingManager {
+        let manager = SimplePingPingManager(delegate: delegate)
+        trackMemoryLeaks(for: manager)
+        return manager
     }
 }

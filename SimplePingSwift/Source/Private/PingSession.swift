@@ -27,50 +27,21 @@ class PingSession: NSObject {
 
     private var pinger: SimplePing?
     private var handler: ((PingSessionResponse) -> Void)?
+    private var requestManager: PingRequestManager
+    private var timeoutTimers = ThreadSafeDictionary<UInt16, Timer?>()
     private let worker = BackgroundWorker()
-    private var _requestManager: PingRequestManager!
-    private var _timeoutTimers: [UInt16: Timer?] = [:]
-    private weak var _pingTimer: Timer?
-
-    private var requestManager: PingRequestManager! {
-        get {
-            serialQueue.sync { _requestManager }
-        }
-        set {
-            serialQueue.async { [weak self] in self?._requestManager = newValue }
-        }
-    }
-
-    private var timeoutTimers: [UInt16: Timer?] {
-        get {
-            serialQueue.sync { _timeoutTimers }
-        }
-        set {
-            serialQueue.async { [weak self] in self?._timeoutTimers = newValue }
-        }
-    }
-
-    private weak var pingTimer: Timer? {
-        get {
-            serialQueue.sync { _pingTimer }
-        }
-        set {
-            serialQueue.async { [weak self] in self?._pingTimer = newValue }
-        }
-    }
-
-    private let serialQueue = DispatchQueue(label: "com.pingSession.serial")
+    private weak var pingTimer: Timer?
 
     init(host: String, config: PingConfiguration = .default) {
         self.host = host
         self.config = config
+        self.requestManager = PingRequestManager(maxCount: config.count)
     }
 
     func start(eventHandler: @escaping ((PingSessionResponse) -> Void)) {
         worker.start { [weak self] in
             guard let self else { return }
             handler = eventHandler
-            requestManager = PingRequestManager(maxCount: config.count)
             pinger = SimplePing(hostName: host)
             pinger?.delegate = self
             pinger?.start()
@@ -111,9 +82,9 @@ class PingSession: NSObject {
 
     private func invalidateTimers() {
         pingTimer.nullify()
-        timeoutTimers.forEach {
-            $0.value?.invalidate()
-            timeoutTimers[$0.key] = nil
+        timeoutTimers.keys.forEach {
+            timeoutTimers[$0]??.invalidate()
+            timeoutTimers[$0] = nil
         }
     }
 }
