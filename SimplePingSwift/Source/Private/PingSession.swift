@@ -20,7 +20,6 @@ enum PingSessionResponse {
 }
 
 class PingSession: NSObject {
-
     let host: String
     let config: PingConfiguration
     var isActive: Bool { pinger != nil }
@@ -28,24 +27,20 @@ class PingSession: NSObject {
     private var pinger: SimplePing?
     private var handler: ((PingSessionResponse) -> Void)?
     private var requestManager: PingRequestManager
-    private var timeoutTimers = ThreadSafeDictionary<UInt16, Timer?>()
-    private let worker = BackgroundWorker()
-    private weak var pingTimer: Timer?
+    private let timerManager: PingTimerManager
 
     init(host: String, config: PingConfiguration = .default) {
         self.host = host
         self.config = config
         self.requestManager = PingRequestManager(maxCount: config.count)
+        self.timerManager = PingTimerManager()
     }
 
     func start(eventHandler: @escaping ((PingSessionResponse) -> Void)) {
-        worker.start { [weak self] in
-            guard let self else { return }
-            handler = eventHandler
-            pinger = SimplePing(hostName: host)
-            pinger?.delegate = self
-            pinger?.start()
-        }
+        handler = eventHandler
+        pinger = SimplePing(hostName: host)
+        pinger?.delegate = self
+        pinger?.start()
     }
 
     func stop() {
@@ -53,39 +48,27 @@ class PingSession: NSObject {
     }
 
     private func setPingTimer() {
-        let timer = Timer.scheduledTimer(withTimeInterval: config.interval, repeats: true) { [weak self] timer in
-            guard let self else { return timer.invalidate() }
+        timerManager.startPingTimer(interval: config.interval) { [weak self] in
+            guard let self else { return }
             if requestManager.requests.count < config.count { pinger?.send(with: nil) }
         }
-        pingTimer = timer
     }
 
     private func setTimeoutTimerForRequestWith(sequenceNumber: UInt16) {
-        let timer = Timer.scheduledTimer(withTimeInterval: config.timeoutInterval, repeats: false) { [weak self] timer in
-            guard let self else { return timer.invalidate() }
-            timeoutTimers[sequenceNumber]?.nullify()
+        timerManager.startTimeoutTimer(sequenceNumber: sequenceNumber, interval: config.timeoutInterval) { [weak self] in
+            guard let self else { return }
             requestManager.handleReceived(response: .failure(PingSessionError.timeout), for: sequenceNumber)
             handler?(.didReceiveResponseFrom(host: host, response: .failure(PingSessionError.timeout)))
             if requestManager.hasReceivedAllResponses { stopAndNotifyResults() }
         }
-        timeoutTimers.updateValue(timer, forKey: sequenceNumber)
     }
 
     private func stopAndNotifyResults() {
         pinger?.stop()
         pinger = nil
-        worker.stop()
-        invalidateTimers()
+        timerManager.stopAllTimers()
         let result = PingResult(host: host, responses: requestManager.results)
         handler?(.didFinishPinging(host: host, result: result))
-    }
-
-    private func invalidateTimers() {
-        pingTimer.nullify()
-        timeoutTimers.keys.forEach {
-            timeoutTimers[$0]??.invalidate()
-            timeoutTimers[$0] = nil
-        }
     }
 }
 
@@ -97,7 +80,7 @@ extension PingSession: SimplePingDelegate {
     }
 
     func simplePing(_ pinger: SimplePing, didFailWithError error: any Error) {
-        handler?(.didFailToStartPinging(host: host, error: PingSessionError.invalidHost))
+        handler?(.didFailToStartPinging(host: host, error: error))
     }
 
     func simplePing(_ pinger: SimplePing, didSendPacket packet: Data, sequenceNumber: UInt16) {
@@ -112,7 +95,7 @@ extension PingSession: SimplePingDelegate {
     }
 
     func simplePing(_ pinger: SimplePing, didReceivePingResponsePacket packet: Data, sequenceNumber: UInt16) {
-        timeoutTimers[sequenceNumber]?.nullify()
+        timerManager.stopTimeoutTimerFor(sequenceNumber: sequenceNumber)
         if let elapsed = requestManager.handleReceived(response: .success(Date()), for: sequenceNumber) {
             handler?(.didReceiveResponseFrom(host: host, response: .success(elapsed)))
         }
