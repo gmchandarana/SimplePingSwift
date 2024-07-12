@@ -51,6 +51,12 @@ class ThreadSafeDictionary<Key: Hashable, Value> {
         lock.unlock()
     }
 
+    func removeValue(forKey key: Key) {
+        lock.writeLock()
+        dictionary.removeValue(forKey: key)
+        lock.unlock()
+    }
+
     func reduce<Result>(into initialResult: Result, _ updateAccumulatingResult: (inout Result, (key: Key, value: Value)) throws -> ()) rethrows -> Result {
         lock.readLock()
         defer { lock.unlock() }
