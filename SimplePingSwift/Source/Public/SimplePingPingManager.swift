@@ -8,18 +8,8 @@
 import Foundation
 
 public class SimplePingPingManager: PingManager {
-    private var _sessions: [String: PingSession] = [:]
-    private var sessions: [String: PingSession] {
-        get {
-            serialQueue.sync { _sessions }
-        }
-        set {
-            serialQueue.async { [weak self] in self?._sessions = newValue }
-        }
-    }
-
+    private var sessions = ThreadSafeDictionary<String, PingSession>()
     public var delegate: (any PingManagerDelegate)?
-    private let serialQueue = DispatchQueue(label: "com.simpleping.queue")
 
     public init(delegate: PingManagerDelegate? = nil) {
         self.delegate = delegate
